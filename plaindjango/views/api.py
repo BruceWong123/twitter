@@ -61,6 +61,7 @@ def test(request):
 
                 db_users.insert_one(
                     {"screen_name": user.screen_name, "name": user.name, "id": user.id, "follwers": user.followers_count, "location": user.location})
+                time.sleep(10)
                 # final_ids.append(user.screen_name)
         # print(final_ids)
 
