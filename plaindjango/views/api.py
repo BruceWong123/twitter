@@ -39,7 +39,7 @@ print(
 @ api_view(['GET', 'PUT', 'DELETE'])
 def test(request):
     if request.method == 'GET':
-
+        print("into test")
         db_users = mongo_db["users"]
 
         ids = []
