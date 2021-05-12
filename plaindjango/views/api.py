@@ -23,27 +23,24 @@ auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 
 tw_api = tweepy.API(auth, wait_on_rate_limit=True)
 
+host = '43.130.32.126'
+port = 27017
+authSource = "tw"
+my_mongo_client = MongoClient(
+    "mongodb://%s:%s@%s:%s/%s" % ('bruce',
+                                  'twitter', host, port, 'tw')
+)
+mongo_db = my_mongo_client["tw"]
+print(
+    "Successfully connected to Mongo"
+)
+
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 def test(request):
     if request.method == 'GET':
-        host = '43.130.32.126'
-        port = 27017
-        authSource = "tw"
-        print("connecting db")
-        my_mongo_client = MongoClient(
-            "mongodb://%s:%s@%s:%s/%s" % ('bruce',
-                                          'twitter', host, port, 'tw')
-        )
-        mongo_db = my_mongo_client["tw"]
-        print(
-            "Successfully connected to Mongo"
-        )
 
         db_users = mongo_db["users"]
-        query_result = db_users.find({"tst": "test"})
-        for x in query_result:
-            print(x)
 
         ids = []
         count = 0
@@ -59,9 +56,14 @@ def test(request):
                 print(user.screen_name, user.name, user.id,
                       user.followers_count, user.location)
 
-                db_users.insert_one(
-                    {"screen_name": user.screen_name, "name": user.name, "id": user.id, "follwers": user.followers_count, "location": user.location})
-                time.sleep(10)
+                key = {"id": user.id}
+                data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                        "follwers": user.followers_count, "location": user.location}
+                db_users.update(key, data, upsert=True)
+
+                # db_users.insert_one(
+                #     {"screen_name": user.screen_name, "name": user.name, "id": user.id, "follwers": user.followers_count, "location": user.location})
+                # time.sleep(10)
                 # final_ids.append(user.screen_name)
         # print(final_ids)
 
