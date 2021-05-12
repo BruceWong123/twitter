@@ -21,7 +21,8 @@ ACCESS_SECRET = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 
-tw_api = tweepy.API(auth, wait_on_rate_limit=True)
+tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                    wait_on_rate_limit_notify=True)
 
 host = '43.130.32.126'
 port = 27017
