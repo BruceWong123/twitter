@@ -39,10 +39,44 @@ print(
 )
 
 
+def auto_teest():
+    print("into auto_test")
+    logger.info("into tesst>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    db_users = mongo_db["users"]
+
+    ids = []
+    count = 0
+    for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
+        ids.extend(page)
+
+    logger.info("done loading all followers")
+
+    final_ids = []
+    for i, uid in enumerate(ids):
+        user = tw_api.get_user(uid)
+        if user.followers_count > 100:
+            relation = tw_api.show_friendship(target_id=user.id)
+            if relation[0].can_dm:
+                print(user.screen_name, user.name, user.id,
+                      user.followers_count, user.location)
+
+                key = {"id": user.id}
+                data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                        "follwers": user.followers_count, "location": user.location}
+                db_users.update(key, data, upsert=True)
+
+    logger.info("done inserting all into mongo")
+
+
+auto_teest()
+print("auto test done")
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def test(request):
     if request.method == 'GET':
         print("into test")
+        time.sleep(120)
         logger.info("into tesst>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         # print(str(request))
         db_users = mongo_db["users"]
@@ -57,15 +91,16 @@ def test(request):
         final_ids = []
         for i, uid in enumerate(ids):
             user = tw_api.get_user(uid)
-            relation = tw_api.show_friendship(target_id=user.id)
-            if user.followers_count > 100 and relation[0].can_dm:
-                print(user.screen_name, user.name, user.id,
-                      user.followers_count, user.location)
+            if user.followers_count > 100:
+                relation = tw_api.show_friendship(target_id=user.id)
+                if relation[0].can_dm:
+                    print(user.screen_name, user.name, user.id,
+                          user.followers_count, user.location)
 
-                key = {"id": user.id}
-                data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "location": user.location}
-                db_users.update(key, data, upsert=True)
+                    key = {"id": user.id}
+                    data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                            "follwers": user.followers_count, "location": user.location}
+                    db_users.update(key, data, upsert=True)
 
         logger.info("done inserting all into mongo")
 
