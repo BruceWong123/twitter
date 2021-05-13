@@ -51,7 +51,7 @@ def get_followers(screen_name):
     ids = []
     count = 0
     try:
-        for page in tweepy.Cursor(tw_api.followers_ids, screen_name[0]).pages():
+        for page in tweepy.Cursor(tw_api.followers_ids, screen_name).pages():
             ids.extend(page)
     except:
         print("Unexpected error:", sys.exc_info()[0])
