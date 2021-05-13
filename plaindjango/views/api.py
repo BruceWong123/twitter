@@ -6,7 +6,9 @@ from pymongo import MongoClient
 import tweepy
 import time
 import json
+import logging
 
+logger = logging.getLogger('django')
 # bruce
 # CONSUMER_KEY = "4xIpesNGnicInoWrHz2eKKiGT"
 # CONSUMER_SECRET = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
@@ -41,13 +43,16 @@ print(
 def test(request):
     if request.method == 'GET':
         print("into test")
+        logger.info("into tesst>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        # print(str(request))
         db_users = mongo_db["users"]
 
         ids = []
         count = 0
         for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
             ids.extend(page)
-            break
+
+        logger.info("done loading all followers")
 
         final_ids = []
         for i, uid in enumerate(ids):
@@ -62,10 +67,6 @@ def test(request):
                         "follwers": user.followers_count, "location": user.location}
                 db_users.update(key, data, upsert=True)
 
-                # db_users.insert_one(
-                #     {"screen_name": user.screen_name, "name": user.name, "id": user.id, "follwers": user.followers_count, "location": user.location})
-                # time.sleep(10)
-                # final_ids.append(user.screen_name)
-        # print(final_ids)
+        logger.info("done inserting all into mongo")
 
         return HttpResponse("ok")
