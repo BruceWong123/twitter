@@ -13,15 +13,15 @@ import sys
 
 logger = logging.getLogger('django')
 
-# CONSUMER_KEY = "4xIpesNGnicInoWrHz2eKKiGT"
-# CONSUMER_SECRET = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
-# ACCESS_KEY = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
-# ACCESS_SECRET = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
+CONSUMER_KEY = "4xIpesNGnicInoWrHz2eKKiGT"
+CONSUMER_SECRET = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
+ACCESS_KEY = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
+ACCESS_SECRET = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
 
-CONSUMER_KEY = "SiPtW0L6amxM8FRX8gbo4BBBg"
-CONSUMER_SECRET = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
-ACCESS_KEY = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
-ACCESS_SECRET = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
+# CONSUMER_KEY = "SiPtW0L6amxM8FRX8gbo4BBBg"
+# CONSUMER_SECRET = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
+# ACCESS_KEY = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
+# ACCESS_SECRET = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
@@ -42,8 +42,8 @@ print(
 )
 
 
-def get_followers(screen_name):
-    print("Set up Threading get followers of ", screen_name)
+def get_followers(user_name):
+    print("Set up Threading get followers of ", user_name)
     print('Number of current threads is ', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     db_users = mongo_db["users"]
@@ -51,7 +51,11 @@ def get_followers(screen_name):
     ids = []
     count = 0
     try:
-        for page in tweepy.Cursor(tw_api.followers_ids, screen_name).pages():
+        print("into get page")
+        user = tw_api.get_user(179379147)
+        print(user.followers_count)
+        for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
+            print("get page")
             ids.extend(page)
     except:
         print("Unexpected error:", sys.exc_info()[0])
@@ -64,8 +68,8 @@ def get_followers(screen_name):
         if user.followers_count > 100:
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
-                logger.info(user.screen_name, user.name, user.id,
-                            user.followers_count, user.location)
+                logger.info('insert '.format(user.screen_name, user.name, user.id,
+                            user.followers_count, user.location))
 
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
@@ -78,9 +82,17 @@ def get_followers(screen_name):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
-        t = threading.Thread(target=get_followers,
-                             args=(user_name,))
-        t.start()
+        public_tweets = tw_api.home_timeline()
+        for tweet in public_tweets:
+            print(tweet.text)
+        # user_name = user_name.strip()
+        # print("username is", user_name)
+        # user = tw_api.get_user(user_name)
+        # print(user.followers_count)
+        # get_followers(user_name)
+        # t = threading.Thread(target=get_followers,
+        #                      args=(user_name,))
+        # t.start()
         return HttpResponse("request sent")
 
 
