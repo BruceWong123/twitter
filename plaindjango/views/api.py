@@ -82,14 +82,9 @@ def get_followers(user_name):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
-        public_tweets = tw_api.home_timeline()
-        for tweet in public_tweets:
-            print(tweet.text)
-        # user_name = user_name.strip()
-        # print("username is", user_name)
-        # user = tw_api.get_user(user_name)
-        # print(user.followers_count)
-        # get_followers(user_name)
+        user_name = user_name.strip()
+        print("username is", user_name)
+        get_followers(user_name)
         # t = threading.Thread(target=get_followers,
         #                      args=(user_name,))
         # t.start()
