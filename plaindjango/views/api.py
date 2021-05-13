@@ -93,6 +93,6 @@ def send_direct_messages(request):
 
         query_result = db_users.find()
         for x in query_result:
-            print(x)
+            print(x["name"])
 
         return HttpResponse("ok")
