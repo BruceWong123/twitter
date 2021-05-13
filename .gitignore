@@ -1,2 +1,3 @@
 plaindjango/__pycache__/
 *.py[cod]
+debug.log

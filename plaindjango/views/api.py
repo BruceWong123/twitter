@@ -7,9 +7,12 @@ import tweepy
 import time
 import json
 import logging
+import threading
+from time import sleep, ctime
+
 
 logger = logging.getLogger('django')
-# bruce
+
 # CONSUMER_KEY = "4xIpesNGnicInoWrHz2eKKiGT"
 # CONSUMER_SECRET = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
 # ACCESS_KEY = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
@@ -39,14 +42,14 @@ print(
 )
 
 
-def auto_teest():
-    print("into auto_test")
-    logger.info("into tesst>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+def get_followers(screen_name):
+    print("into Threading get followers of ", screen_name)
+    logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     db_users = mongo_db["users"]
 
     ids = []
     count = 0
-    for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
+    for page in tweepy.Cursor(tw_api.followers_ids, screen_name[0]).pages():
         ids.extend(page)
 
     logger.info("done loading all followers")
@@ -57,8 +60,8 @@ def auto_teest():
         if user.followers_count > 100:
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
-                print(user.screen_name, user.name, user.id,
-                      user.followers_count, user.location)
+                logger.info(user.screen_name, user.name, user.id,
+                            user.followers_count, user.location)
 
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
@@ -68,12 +71,18 @@ def auto_teest():
     logger.info("done inserting all into mongo")
 
 
-auto_teest()
-print("auto test done")
+@ api_view(['GET', 'PUT', 'DELETE'])
+def followers(request, user_name):
+    if request.method == 'GET':
+        print("into get followers")
+        t = threading.Thread(target=get_followers,
+                             args=(user_name,))
+        t.start()
+        return HttpResponse("request sent")
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
-def test(request):
+def test2(request):
     if request.method == 'GET':
         print("into test")
         time.sleep(120)

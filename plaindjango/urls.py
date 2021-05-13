@@ -19,5 +19,5 @@ from plaindjango import views
 from django.conf.urls import url
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', views.api.test),
+    path('followers/<str:user_name>/', views.api.followers),
 ]
