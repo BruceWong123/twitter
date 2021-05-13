@@ -9,7 +9,7 @@ import json
 import logging
 import threading
 from time import sleep, ctime
-
+import sys
 
 logger = logging.getLogger('django')
 
@@ -50,8 +50,11 @@ def get_followers(screen_name):
 
     ids = []
     count = 0
-    for page in tweepy.Cursor(tw_api.followers_ids, screen_name[0]).pages():
-        ids.extend(page)
+    try:
+        for page in tweepy.Cursor(tw_api.followers_ids, screen_name[0]).pages():
+            ids.extend(page)
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
 
     logger.info("done loading all followers")
 
@@ -73,7 +76,7 @@ def get_followers(screen_name):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
-def followers(request, user_name):
+def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         t = threading.Thread(target=get_followers,
                              args=(user_name,))
@@ -82,35 +85,14 @@ def followers(request, user_name):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
-def test2(request):
+def send_direct_messages(request):
     if request.method == 'GET':
-        print("into test")
-        time.sleep(120)
-        logger.info("into tesst>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        # print(str(request))
+        print("into send DM")
+
         db_users = mongo_db["users"]
 
-        ids = []
-        count = 0
-        for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
-            ids.extend(page)
-
-        logger.info("done loading all followers")
-
-        final_ids = []
-        for i, uid in enumerate(ids):
-            user = tw_api.get_user(uid)
-            if user.followers_count > 100:
-                relation = tw_api.show_friendship(target_id=user.id)
-                if relation[0].can_dm:
-                    print(user.screen_name, user.name, user.id,
-                          user.followers_count, user.location)
-
-                    key = {"id": user.id}
-                    data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                            "follwers": user.followers_count, "location": user.location}
-                    db_users.update(key, data, upsert=True)
-
-        logger.info("done inserting all into mongo")
+        query_result = db_users.find()
+        for x in query_result:
+            print(x)
 
         return HttpResponse("ok")

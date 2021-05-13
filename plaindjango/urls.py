@@ -19,5 +19,6 @@ from plaindjango import views
 from django.conf.urls import url
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('followers/<str:user_name>/', views.api.followers),
+    path('followers/<str:user_name>/', views.api.get_followers_by_name),
+    path('directmessage/', views.api.send_direct_messages),
 ]
