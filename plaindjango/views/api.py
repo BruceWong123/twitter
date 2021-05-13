@@ -52,9 +52,7 @@ def get_followers(user_name):
     count = 0
     try:
         print("into get page")
-        user = tw_api.get_user(179379147)
-        print(user.followers_count)
-        for page in tweepy.Cursor(tw_api.followers_ids, screen_name="AsensysChain").pages():
+        for page in tweepy.Cursor(tw_api.followers_ids, screen_name=user_name).pages():
             print("get page")
             ids.extend(page)
     except:
@@ -84,10 +82,10 @@ def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
         print("username is", user_name)
-        get_followers(user_name)
-        # t = threading.Thread(target=get_followers,
-        #                      args=(user_name,))
-        # t.start()
+        # get_followers(user_name)
+        t = threading.Thread(target=get_followers,
+                             args=(user_name,))
+        t.start()
         return HttpResponse("request sent")
 
 
