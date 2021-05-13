@@ -43,7 +43,8 @@ print(
 
 
 def get_followers(screen_name):
-    print("into Threading get followers of ", screen_name)
+    print("Set up Threading get followers of ", screen_name)
+    print('Number of current threads is ', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     db_users = mongo_db["users"]
 
@@ -74,7 +75,6 @@ def get_followers(screen_name):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def followers(request, user_name):
     if request.method == 'GET':
-        print("into get followers")
         t = threading.Thread(target=get_followers,
                              args=(user_name,))
         t.start()
