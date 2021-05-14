@@ -23,8 +23,8 @@ CONSUMER_SECRET_2 = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
 ACCESS_KEY_2 = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
 ACCESS_SECRET_2 = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
 
-auth = tweepy.OAuthHandler(CONSUMER_KEY_1, CONSUMER_SECRET_1)
-auth.set_access_token(ACCESS_KEY_1, ACCESS_SECRET_1)
+auth = tweepy.OAuthHandler(CONSUMER_KEY_2, CONSUMER_SECRET_2)
+auth.set_access_token(ACCESS_KEY_2, ACCESS_SECRET_2)
 
 tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                     wait_on_rate_limit_notify=True)
