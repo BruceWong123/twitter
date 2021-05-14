@@ -13,18 +13,18 @@ import sys
 
 logger = logging.getLogger('django')
 
-# CONSUMER_KEY = "4xIpesNGnicInoWrHz2eKKiGT"
-# CONSUMER_SECRET = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
-# ACCESS_KEY = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
-# ACCESS_SECRET = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
+CONSUMER_KEY_1 = "4xIpesNGnicInoWrHz2eKKiGT"
+CONSUMER_SECRET_1 = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
+ACCESS_KEY_1 = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
+ACCESS_SECRET_1 = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
 
-CONSUMER_KEY = "SiPtW0L6amxM8FRX8gbo4BBBg"
-CONSUMER_SECRET = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
-ACCESS_KEY = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
-ACCESS_SECRET = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
+CONSUMER_KEY_2 = "SiPtW0L6amxM8FRX8gbo4BBBg"
+CONSUMER_SECRET_2 = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
+ACCESS_KEY_2 = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
+ACCESS_SECRET_2 = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
 
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+auth = tweepy.OAuthHandler(CONSUMER_KEY_1, CONSUMER_SECRET_1)
+auth.set_access_token(ACCESS_KEY_1, ACCESS_SECRET_1)
 
 tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                     wait_on_rate_limit_notify=True)
