@@ -66,7 +66,7 @@ def get_followers(user_name):
         if user.followers_count > 100:
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
-                print(user.screen_name)
+                logger.info(user.screen_name)
 
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
