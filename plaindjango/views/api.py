@@ -91,12 +91,13 @@ def get_followers_by_name(request, user_name):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def send_direct_messages(request):
     if request.method == 'GET':
-        print("into send DM")
+        logger.info("into send DM")
 
         db_users = mongo_db["users"]
 
         query_result = db_users.find()
         for x in query_result:
-            print(x["name"])
+            logger.info(x["name"].encode('utf-8'))
+        logger.info("done")
 
         return HttpResponse("ok")
