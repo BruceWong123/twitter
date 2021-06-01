@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('followers/<str:user_name>/', views.api.get_followers_by_name),
     path('directmessage/', views.api.send_direct_messages),
+    path('crm/', views.api.crm_manager),
+
 ]

@@ -11,6 +11,7 @@ import threading
 from time import sleep, ctime
 import sys
 
+
 logger = logging.getLogger('django')
 
 CONSUMER_KEY_1 = "4xIpesNGnicInoWrHz2eKKiGT"
@@ -59,6 +60,7 @@ def get_followers(user_name):
         print("Unexpected error:", sys.exc_info()[0])
 
     logger.info("done loading all followers")
+    print("done loading all followers")
 
     final_ids = []
     for i, uid in enumerate(ids):
@@ -80,11 +82,11 @@ def get_followers(user_name):
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
-        print("username is", user_name)
-        # get_followers(user_name)
-        t = threading.Thread(target=get_followers,
-                             args=(user_name,))
-        t.start()
+        logger.info("username is", user_name)
+        # t = threading.Thread(target=get_followers,
+        #                      args=(user_name,))
+        # t.start()
+        logger.info("get followers done")
         return HttpResponse("request sent")
 
 
@@ -93,11 +95,19 @@ def send_direct_messages(request):
     if request.method == 'GET':
         logger.info("into send DM")
 
-        db_users = mongo_db["users"]
+        # db_users = mongo_db["users"]
 
-        query_result = db_users.find()
-        for x in query_result:
-            logger.info(x["name"].encode('utf-8'))
-        logger.info("done")
+        # query_result = db_users.find()
+        # for x in query_result:
+        #     logger.info(x["name"].encode('utf-8'))
+        logger.info("done DM")
+        return HttpResponse("ok")
 
+
+@ api_view(['GET', 'PUT', 'DELETE'])
+def crm_manager(request):
+    if request.method == 'GET':
+        logger.info("into CRM")
+
+        logger.info("done CRM")
         return HttpResponse("ok")
