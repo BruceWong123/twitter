@@ -22,5 +22,6 @@ urlpatterns = [
     path('followers/<str:user_name>/', views.api.get_followers_by_name),
     path('directmessage/', views.api.send_direct_messages),
     path('crm/', views.api.crm_manager),
+    path('seedusers/<str:key_word>/', views.api.get_seed_users_by_key),
 
 ]

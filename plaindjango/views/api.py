@@ -19,10 +19,16 @@ CONSUMER_SECRET_1 = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
 ACCESS_KEY_1 = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
 ACCESS_SECRET_1 = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
 
-CONSUMER_KEY_2 = "SiPtW0L6amxM8FRX8gbo4BBBg"
-CONSUMER_SECRET_2 = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
-ACCESS_KEY_2 = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
-ACCESS_SECRET_2 = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
+# CONSUMER_KEY_2 = "SiPtW0L6amxM8FRX8gbo4BBBg"
+# CONSUMER_SECRET_2 = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
+# ACCESS_KEY_2 = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
+# ACCESS_SECRET_2 = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
+
+CONSUMER_KEY_2 = "sz6x0nvL0ls9wacR64MZu23z4"
+CONSUMER_SECRET_2 = "ofeGnzduikcHX6iaQMqBCIJ666m6nXAQACIAXMJaFhmC6rjRmT"
+ACCESS_KEY_2 = "854004678127910913-PUPfQYxIjpBWjXOgE25kys8kmDJdY0G"
+ACCESS_SECRET_2 = "BC2TxbhKXkdkZ91DXofF7GX8p2JNfbpHqhshW1bwQkgxN"
+
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY_2, CONSUMER_SECRET_2)
 auth.set_access_token(ACCESS_KEY_2, ACCESS_SECRET_2)
@@ -41,6 +47,29 @@ mongo_db = my_mongo_client["tw"]
 print(
     "Successfully connected to Mongo"
 )
+
+
+def get_seed_users(key_word):
+    print("get seed users")
+    db_users = mongo_db["seedusers"]
+    try:
+        count = 0
+        for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
+            user = page[0]
+            print(count, user.id, user.screen_name)
+            count += 1
+            key = {"id": user.id}
+            print(user.location)
+            print(user.followers_count)
+            data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                    "follwers": user.followers_count, "location": user.location, "crawled": False}
+            print(data)
+            db_users.update(key, data, upsert=True)
+            print("update done")
+            if count > 10:
+                return
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
 
 
 def get_followers(user_name):
@@ -87,6 +116,18 @@ def get_followers_by_name(request, user_name):
         #                      args=(user_name,))
         # t.start()
         logger.info("get followers done")
+        return HttpResponse("request sent")
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
+def get_seed_users_by_key(request, key_word):
+    if request.method == 'GET':
+        logger.info("keyword is", key_word)
+        print("keyword is", key_word)
+        # t = threading.Thread(target=get_seed_users,
+        #                      args=(key_word,))
+        # t.start()
+        logger.info("get seed user done")
         return HttpResponse("request sent")
 
 
