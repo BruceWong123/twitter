@@ -164,6 +164,7 @@ def send_direct_messages(request):
         logger.info("into send DM")
         request_body = request.data
         request_dict = request_body.dict()
+        logger.info(request_dict)
         t = threading.Thread(target=send_direct_message,
                              args=(request_dict["users"], request_dict["content"]))
         t.start()
