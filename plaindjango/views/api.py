@@ -30,11 +30,14 @@ ACCESS_KEY_2 = "854004678127910913-PUPfQYxIjpBWjXOgE25kys8kmDJdY0G"
 ACCESS_SECRET_2 = "BC2TxbhKXkdkZ91DXofF7GX8p2JNfbpHqhshW1bwQkgxN"
 
 
-auth = tweepy.OAuthHandler(CONSUMER_KEY_2, CONSUMER_SECRET_2)
-auth.set_access_token(ACCESS_KEY_2, ACCESS_SECRET_2)
+def get_twitter_api(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET):
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 
-tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                    wait_on_rate_limit_notify=True)
+    tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                        wait_on_rate_limit_notify=True)
+    return tw_api
+
 
 host = '43.130.32.126'
 port = 27017
@@ -51,7 +54,10 @@ print(
 
 def get_seed_users(key_word):
     print("get seed users")
+    logger.info("get seed users on ", key_word)
     db_users = mongo_db["seedusers"]
+    tw_api = get_twitter_api(
+        CONSUMER_KEY_2, CONSUMER_SECRET_2, ACCESS_KEY_2, ACCESS_SECRET_2)
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
@@ -59,15 +65,11 @@ def get_seed_users(key_word):
             print(count, user.id, user.screen_name)
             count += 1
             key = {"id": user.id}
-            print(user.location)
-            print(user.followers_count)
             data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                     "follwers": user.followers_count, "location": user.location, "crawled": False}
-            print(data)
+            logger.info(data)
             db_users.update(key, data, upsert=True)
             print("update done")
-            if count > 10:
-                return
     except:
         print("Unexpected error:", sys.exc_info()[0])
 
@@ -77,7 +79,8 @@ def get_followers(user_name):
     print('Number of current threads is ', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     db_users = mongo_db["users"]
-
+    tw_api = get_twitter_api(
+        CONSUMER_KEY_2, CONSUMER_SECRET_2, ACCESS_KEY_2, ACCESS_SECRET_2)
     ids = []
     count = 0
     try:
@@ -107,14 +110,30 @@ def get_followers(user_name):
     logger.info("done inserting all into mongo")
 
 
+def send_direct_message(list_of_users, text):
+    tw_api = get_twitter_api(
+        CONSUMER_KEY_1, CONSUMER_SECRET_1, ACCESS_KEY_1, ACCESS_SECRET_1)
+
+    try:
+
+        for user in list_of_users:
+            logger.info("send dm to ", user['name'])
+            message = "Hi " + user["name"] + "\n" + text
+            direct_message = tw_api.send_direct_message(user["id"], message)
+            print(user)
+
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
-        logger.info("username is", user_name)
-        # t = threading.Thread(target=get_followers,
-        #                      args=(user_name,))
-        # t.start()
+        logger.info("get followers of ", user_name)
+        t = threading.Thread(target=get_followers,
+                             args=(user_name,))
+        t.start()
         logger.info("get followers done")
         return HttpResponse("request sent")
 
@@ -124,23 +143,22 @@ def get_seed_users_by_key(request, key_word):
     if request.method == 'GET':
         logger.info("keyword is", key_word)
         print("keyword is", key_word)
-        # t = threading.Thread(target=get_seed_users,
-        #                      args=(key_word,))
-        # t.start()
+        t = threading.Thread(target=get_seed_users,
+                             args=(key_word,))
+        t.start()
         logger.info("get seed user done")
         return HttpResponse("request sent")
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 def send_direct_messages(request):
-    if request.method == 'GET':
+    if request.method == 'PUT':
+        request_body = request.data
+        request_dict = request_body.dict()
         logger.info("into send DM")
-
-        # db_users = mongo_db["users"]
-
-        # query_result = db_users.find()
-        # for x in query_result:
-        #     logger.info(x["name"].encode('utf-8'))
+        t = threading.Thread(target=send_direct_message,
+                             args=(request_dict["users"], request_dict["content"]))
+        t.start()
         logger.info("done DM")
         return HttpResponse("ok")
 
