@@ -170,3 +170,4 @@ def crm_manager(request):
 
         logger.info("done CRM")
         return HttpResponse("ok")
+
