@@ -117,6 +117,8 @@ def get_followers(user_name):
 
 
 def send_direct_message(list_of_users, text):
+    logger.info("into direct message")
+    logger.info(list_of_users)
     tw_api = get_twitter_api(
         CONSUMER_KEY_1, CONSUMER_SECRET_1, ACCESS_KEY_1, ACCESS_SECRET_1)
 
@@ -159,9 +161,9 @@ def get_seed_users_by_key(request, key_word):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def send_direct_messages(request):
     if request.method == 'PUT':
+        logger.info("into send DM")
         request_body = request.data
         request_dict = request_body.dict()
-        logger.info("into send DM")
         t = threading.Thread(target=send_direct_message,
                              args=(request_dict["users"], request_dict["content"]))
         t.start()
