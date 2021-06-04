@@ -69,14 +69,14 @@ def get_seed_users(key_word):
                     "follwers": user.followers_count, "location": user.location, "crawled": False}
             logger.info(data)
             db_users.update(key, data, upsert=True)
-            print("update done")
+            logger.info("update done")
     except:
         print("Unexpected error:", sys.exc_info()[0])
 
 
 def get_followers(user_name):
-    print("Set up Threading get followers of ", user_name)
-    print('Number of current threads is ', threading.active_count())
+    logger.info("Set up Threading get followers of ", user_name)
+    logger.info('Number of current threads is ', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     db_users = mongo_db["users"]
     tw_api = get_twitter_api(
@@ -84,9 +84,9 @@ def get_followers(user_name):
     ids = []
     count = 0
     try:
-        print("into get page")
+        logger.info("into get page")
         for page in tweepy.Cursor(tw_api.followers_ids, screen_name=user_name).pages():
-            print("get page")
+            logger.info("get page")
             ids.extend(page)
     except:
         print("Unexpected error:", sys.exc_info()[0])
@@ -170,4 +170,3 @@ def crm_manager(request):
 
         logger.info("done CRM")
         return HttpResponse("ok")
-
