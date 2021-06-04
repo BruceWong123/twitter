@@ -161,12 +161,15 @@ def get_seed_users_by_key(request, key_word):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def send_direct_messages(request):
     if request.method == 'PUT':
-        logger.info("into send DM")
+        logger.info("into send DM 111111")
         request_body = request.data
-        request_dict = request_body.dict()
-        logger.info(request_dict)
+        logger.info(request_body)
+        user_list = request_body.getlist("users")
+        content = request_body["content"]
+        logger.info(user_list)
+        logger.info(content)
         t = threading.Thread(target=send_direct_message,
-                             args=(request_dict["users"], request_dict["content"]))
+                             args=(user_list, content))
         t.start()
         logger.info("done DM")
         return HttpResponse("ok")
