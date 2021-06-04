@@ -162,7 +162,7 @@ def get_seed_users_by_key(request, key_word):
 def send_direct_messages(request):
     if request.method == 'PUT':
         logger.info("into send DM 111111")
-        request_body = json.dumps(request.data)
+        request_body = json.load(request.data)
         logger.info(request_body)
         user_list = request_body["users"]
 
