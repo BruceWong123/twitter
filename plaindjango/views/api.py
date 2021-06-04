@@ -87,7 +87,7 @@ def store_followers(ids):
                 logger.info(user.screen_name)
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "location": user.location}
+                        "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
 
     logger.info("done inserting all into mongo")
