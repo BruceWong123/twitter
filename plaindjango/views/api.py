@@ -127,7 +127,7 @@ def send_direct_message(list_of_users, text):
         for user in list_of_users:
             logger.info("send dm to ", user['name'])
             firstname = user["name"].split(' ')[0]
-            message = "Hi " + firstname + "\n\n" + text
+            message = "Hi " + firstname + ",\n\n" + text
             direct_message = tw_api.send_direct_message(user["id"], message)
             print(user)
 
