@@ -14,21 +14,8 @@ import mysql.connector as mysql
 import random
 logger = logging.getLogger('django')
 
-CONSUMER_KEY_1 = "4xIpesNGnicInoWrHz2eKKiGT"
-CONSUMER_SECRET_1 = "895COTXg4ObAgSUfjbUDE0C5u1M1u5wuLy5mFjvJ6s4v1f35lM"
-ACCESS_KEY_1 = "179379147-0ZzaSQF0Ek7mRpAiUi5K93saBSJtXt2n1CldQxeW"
-ACCESS_SECRET_1 = "gZChNX5sSBtrjNpcFn3grumeDRJrIG7QLwmIH0n77eNzd"
 
-CONSUMER_KEY_3 = "SiPtW0L6amxM8FRX8gbo4BBBg"
-CONSUMER_SECRET_3 = "4Uuc8A0ud8x25DxbuKql20EyihQofo1Nlf4mVdxKFAaZOGfxLo"
-ACCESS_KEY_3 = "1382248151352897538-sR1f4Vj5rIu5p0ZbdU7XIDCgK4YcUd"
-ACCESS_SECRET_3 = "nOuCcvM9po0j1Lme21NlORN8lilsf6Czee6nnoPQvNIji"
-
-CONSUMER_KEY_2 = "sz6x0nvL0ls9wacR64MZu23z4"
-CONSUMER_SECRET_2 = "ofeGnzduikcHX6iaQMqBCIJ666m6nXAQACIAXMJaFhmC6rjRmT"
-ACCESS_KEY_2 = "854004678127910913-PUPfQYxIjpBWjXOgE25kys8kmDJdY0G"
-ACCESS_SECRET_2 = "BC2TxbhKXkdkZ91DXofF7GX8p2JNfbpHqhshW1bwQkgxN"
-
+level3_keys = []
 level2_keys = []
 level1_keys = []
 
@@ -41,6 +28,27 @@ USER = "root"
 # user password
 PASSWORD = "abc12341"
 # connect to MySQL server
+
+
+def load_level3_keys():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level3'"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        key = {}
+        key["CONSUMER_KEY"] = row[0]
+        key["CONSUMER_SECRET"] = row[1]
+        key["ACCESS_KEY"] = row[2]
+        key["ACCESS_SECRET"] = row[3]
+        level3_keys.append(key)
+    print("load level3 keys done ", len(level3_keys))
 
 
 def load_level2_keys():
@@ -87,14 +95,19 @@ def load_level1_keys():
 
 load_level1_keys()
 load_level2_keys()
+load_level3_keys()
 
 
 def get_twitter_api(level):
+    print("level %d " % level)
     key_list = []
     if level == 1:
         key_list = level1_keys
-    else:
+    elif level == 2:
         key_list = level2_keys
+    elif level == 3:
+        key_list = level3_keys
+    print("stop %d" % (len(key_list)-1))
     idx = random.randint(0, len(key_list)-1)
     print("get random index %d", idx)
     key = key_list[idx]
@@ -108,8 +121,9 @@ def get_twitter_api(level):
     return tw_api
 
 
-get_twitter_api(0)
 get_twitter_api(1)
+get_twitter_api(2)
+get_twitter_api(3)
 
 host = '43.130.32.126'
 port = 27017
@@ -128,7 +142,7 @@ def get_seed_users(key_word):
     print("get seed users")
     logger.info("get seed users on %s " % key_word)
     db_users = mongo_db["seedusers"]
-    tw_api = get_twitter_api(2)
+    tw_api = get_twitter_api(3)
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
