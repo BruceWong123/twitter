@@ -10,8 +10,8 @@ import logging
 import threading
 from time import sleep, ctime
 import sys
-
-
+import mysql.connector as mysql
+import random
 logger = logging.getLogger('django')
 
 CONSUMER_KEY_1 = "4xIpesNGnicInoWrHz2eKKiGT"
@@ -29,15 +29,87 @@ CONSUMER_SECRET_2 = "ofeGnzduikcHX6iaQMqBCIJ666m6nXAQACIAXMJaFhmC6rjRmT"
 ACCESS_KEY_2 = "854004678127910913-PUPfQYxIjpBWjXOgE25kys8kmDJdY0G"
 ACCESS_SECRET_2 = "BC2TxbhKXkdkZ91DXofF7GX8p2JNfbpHqhshW1bwQkgxN"
 
+level2_keys = []
+level1_keys = []
 
-def get_twitter_api(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_KEY, ACCESS_SECRET):
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+
+HOST = "170.106.188.105"  # or "domain.com"
+# database name, if you want just to connect to MySQL server, leave it empty
+DATABASE = "task_data"
+# this is the user you create
+USER = "root"
+# user password
+PASSWORD = "abc12341"
+# connect to MySQL server
+
+
+def load_level2_keys():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level2'"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        key = {}
+        key["CONSUMER_KEY"] = row[0]
+        key["CONSUMER_SECRET"] = row[1]
+        key["ACCESS_KEY"] = row[2]
+        key["ACCESS_SECRET"] = row[3]
+        level2_keys.append(key)
+    print("load level2 keys done ", len(level2_keys))
+
+
+def load_level1_keys():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level1'"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        key = {}
+        key["CONSUMER_KEY"] = row[0]
+        key["CONSUMER_SECRET"] = row[1]
+        key["ACCESS_KEY"] = row[2]
+        key["ACCESS_SECRET"] = row[3]
+        level1_keys.append(key)
+    print("load level1 keys done ", len(level1_keys))
+
+
+load_level1_keys()
+load_level2_keys()
+
+
+def get_twitter_api(level):
+    key_list = []
+    if level == 1:
+        key_list = level1_keys
+    else:
+        key_list = level2_keys
+    idx = random.randint(0, len(key_list)-1)
+    print("get random index %d", idx)
+    key = key_list[idx]
+    auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+    auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+
+    print(key)
 
     tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                         wait_on_rate_limit_notify=True)
     return tw_api
 
+
+get_twitter_api(0)
+get_twitter_api(1)
 
 host = '43.130.32.126'
 port = 27017
@@ -54,10 +126,9 @@ print(
 
 def get_seed_users(key_word):
     print("get seed users")
-    logger.info("get seed users on ", key_word)
+    logger.info("get seed users on %s " % key_word)
     db_users = mongo_db["seedusers"]
-    tw_api = get_twitter_api(
-        CONSUMER_KEY_2, CONSUMER_SECRET_2, ACCESS_KEY_2, ACCESS_SECRET_2)
+    tw_api = get_twitter_api(2)
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
@@ -76,8 +147,7 @@ def get_seed_users(key_word):
 
 def store_followers(ids):
     logger.info("start inserting all into mongo")
-    tw_api = get_twitter_api(
-        CONSUMER_KEY_3, CONSUMER_SECRET_3, ACCESS_KEY_3, ACCESS_SECRET_3)
+    tw_api = get_twitter_api(2)
     db_users = mongo_db["users"]
     for i, uid in enumerate(ids):
         user = tw_api.get_user(uid)
@@ -94,23 +164,23 @@ def store_followers(ids):
 
 
 def get_followers(user_name):
-    logger.info("Set up Threading get followers of ", user_name)
-    logger.info('Number of current threads is ', threading.active_count())
+    print("Set up Threading get followers of %s" % user_name)
+    logger.info("Set up Threading get followers of %s" % user_name)
+    logger.info('Number of current threads is %d', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    tw_api = get_twitter_api(
-        CONSUMER_KEY_3, CONSUMER_SECRET_3, ACCESS_KEY_3, ACCESS_SECRET_3)
+    tw_api = get_twitter_api(2)
 
     count = 0
     try:
         logger.info("into get page")
         for page in tweepy.Cursor(tw_api.followers_ids, screen_name=user_name).pages():
             ids = []
-            logger.info("get page")
             ids.extend(page)
-            logger.info(len(ids))
+            logger.info("get new page with ids of %d" % len(ids))
+            print("get new page with ids of %d" % len(ids))
             store_followers(ids)
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
 
     logger.info("done loading all followers")
     print("done loading all followers")
@@ -119,13 +189,12 @@ def get_followers(user_name):
 def send_direct_message(list_of_users, text):
     logger.info("into direct message")
     logger.info(list_of_users)
-    tw_api = get_twitter_api(
-        CONSUMER_KEY_1, CONSUMER_SECRET_1, ACCESS_KEY_1, ACCESS_SECRET_1)
+    tw_api = get_twitter_api(1)
 
     try:
 
         for user in list_of_users:
-            logger.info("send dm to ", user['name'])
+            logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
             message = "Hi " + firstname + ",\n\n" + text
             direct_message = tw_api.send_direct_message(user["id"], message)
@@ -139,19 +208,18 @@ def send_direct_message(list_of_users, text):
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
-        logger.info("get followers of ", user_name)
+        logger.info("create thread get followers of %s " % user_name)
         t = threading.Thread(target=get_followers,
                              args=(user_name,))
         t.start()
-        logger.info("get followers done")
         return HttpResponse("request sent")
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 def get_seed_users_by_key(request, key_word):
     if request.method == 'GET':
-        logger.info("keyword is", key_word)
-        print("keyword is", key_word)
+        logger.info("keyword is %s " % key_word)
+        print("keyword is %s " % key_word)
         t = threading.Thread(target=get_seed_users,
                              args=(key_word,))
         t.start()
