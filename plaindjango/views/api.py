@@ -155,8 +155,9 @@ def get_seed_users(key_word):
             logger.info(data)
             db_users.update(key, data, upsert=True)
             logger.info("update done")
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
 
 
 def store_followers(ids):
@@ -195,6 +196,7 @@ def get_followers(user_name):
             store_followers(ids)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
 
     logger.info("done loading all followers")
     print("done loading all followers")
@@ -214,8 +216,9 @@ def send_direct_message(list_of_users, text):
             direct_message = tw_api.send_direct_message(user["id"], message)
             print(user)
 
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
