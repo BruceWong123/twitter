@@ -138,6 +138,10 @@ print(
 )
 
 
+def send_error_message(tw_api, error_message):
+    direct_message = tw_api.send_direct_message("bruce_ywong", error_message)
+
+
 def get_seed_users(key_word):
     print("get seed users")
     logger.info("get seed users on %s " % key_word)
@@ -158,6 +162,7 @@ def get_seed_users(key_word):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
+        send_error_message(tw_api, format(e))
 
 
 def store_followers(ids):
@@ -197,7 +202,7 @@ def get_followers(user_name):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-
+        send_error_message(tw_api, format(e))
     logger.info("done loading all followers")
     print("done loading all followers")
 
@@ -219,6 +224,7 @@ def send_direct_message(list_of_users, text):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
+        send_error_message(tw_api, format(e))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
