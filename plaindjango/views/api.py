@@ -304,8 +304,6 @@ def crm_manager(request):
                 "The text is : " + str(direct_message.message_create['message_data']['text']))
             logger.info("The entities are : " +
                         str(direct_message.message_create['message_data']['entities']))
-            logger.info("The media attachment is : " +
-                        str(direct_message.message_create['message_data']['attachment']))
     logger.info("done CRM")
     return HttpResponse("ok")
 
