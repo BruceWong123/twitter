@@ -287,7 +287,7 @@ def crm_manager(request):
 
             direct_messages = tw_api.list_direct_messages()
 
-            logger.info("the number of messages is: " + len(direct_messages))
+            logger.info("the number of messages is %d " % len(direct_messages))
             for direct_message in direct_messages:
                 logger.info(direct_message.created_timestamp)
                 logger.info("The type is : " + direct_message.type)
