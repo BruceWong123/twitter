@@ -275,15 +275,8 @@ def crm_manager(request):
         logger.info("into CRM")
         
 
-        keys = []
-        for key in level1_keys:
-            keys.append(key)
-        for key in level2_keys:
-            keys.append(key)
-        for key in level3_keys:
-            keys.append(key)
 
-        for key in keys:
+        for key in level1_keys:
             logger.info(key)
             auth = tweepy.OAuthHandler(
                 key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
