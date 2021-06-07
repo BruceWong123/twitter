@@ -273,5 +273,33 @@ def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
 
+        for key in level1_keys:
+            logger.info(key)
+            auth = tweepy.OAuthHandler(
+                key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+            auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+
+            tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                                wait_on_rate_limit_notify=True)
+
+            direct_messages = tw_api.list_direct_messages()
+
+            logger.info("the number of messages is: " + len(direct_messages))
+            for direct_message in direct_messages:
+                logger.info(direct_message.created_timestamp)
+                logger.info("The type is : " + direct_message.type)
+                logger.info("The id is : " + direct_message.id)
+
         logger.info("done CRM")
+        return HttpResponse("ok")
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
+def crm_manager(request):
+    if request.method == 'GET':
+        logger.info("start refresh api")
+        load_level1_keys()
+        load_level2_keys()
+        load_level3_keys()
+        logger.info("done refresh api")
         return HttpResponse("ok")
