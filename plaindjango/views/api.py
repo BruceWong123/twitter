@@ -298,8 +298,6 @@ def crm_manager(request):
                         direct_message.message_create['target']['recipient_id'])
             logger.info("The sender_id is : " +
                         direct_message.message_create['sender_id'])
-            logger.info("The source_app_id is : " +
-                        direct_message.message_create['source_app_id'])
             logger.info(
                 "The text is : " + str(direct_message.message_create['message_data']['text']))
             logger.info("The entities are : " +
