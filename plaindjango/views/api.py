@@ -220,7 +220,7 @@ def send_direct_message(list_of_users, text):
             message = "Hi " + firstname + ",\n\n" + text
             direct_message = tw_api.send_direct_message(user["id"], message)
             logger.info("direct message id: " + direct_message.id)
-            tw_api.destroy_direct_message(direct_message.id)
+ #           tw_api.destroy_direct_message(direct_message.id)
 
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
@@ -285,7 +285,7 @@ def crm_manager(request):
             tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                                 wait_on_rate_limit_notify=True)
 
-            direct_messages = tw_api.list_direct_messages()
+            direct_messages = tw_api.list_direct_messages(1)
 
             logger.info("the number of messages is %d " % len(direct_messages))
             for direct_message in direct_messages:
