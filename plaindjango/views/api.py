@@ -213,13 +213,13 @@ def send_direct_message(list_of_users, text):
     tw_api = get_twitter_api(1)
 
     try:
-
         for user in list_of_users:
             logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
             message = "Hi " + firstname + ",\n\n" + text
             direct_message = tw_api.send_direct_message(user["id"], message)
-            print(user)
+            logger.info("direct message id: " + direct_message.id)
+            tw_api.destroy_direct_message(direct_message.id)
 
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
