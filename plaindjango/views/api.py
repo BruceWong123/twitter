@@ -294,6 +294,18 @@ def crm_manager(request):
             logger.info(direct_message.created_timestamp)
             logger.info("The type is : " + direct_message.type)
             logger.info("The id is : " + direct_message.id)
+            logger.info("The recipient_id is : " +
+                        direct_message.message_create['target']['recipient_id'])
+            logger.info("The sender_id is : " +
+                        direct_message.message_create['sender_id'])
+            logger.info("The source_app_id is : " +
+                        direct_message.message_create['source_app_id'])
+            logger.info(
+                "The text is : " + str(direct_message.message_create['message_data']['text']))
+            logger.info("The entities are : " +
+                        str(direct_message.message_create['message_data']['entities']))
+            logger.info("The media attachment is : " +
+                        str(direct_message.message_create['message_data']['attachment']))
     logger.info("done CRM")
     return HttpResponse("ok")
 
