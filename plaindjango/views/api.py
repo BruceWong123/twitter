@@ -159,6 +159,8 @@ def get_seed_users(key_word):
             logger.info(data)
             db_users.update(key, data, upsert=True)
             logger.info("update done")
+            if count > 200:
+                break
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -169,6 +171,7 @@ def store_followers(ids):
     logger.info("start inserting all into mongo")
     tw_api = get_twitter_api(2)
     db_users = mongo_db["users"]
+    count = 0
     for i, uid in enumerate(ids):
         user = tw_api.get_user(uid)
         if user.followers_count > 100:
@@ -179,6 +182,9 @@ def store_followers(ids):
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
+                count += 1
+                if count > 1000:
+                    break
 
     logger.info("done inserting all into mongo")
 
