@@ -293,7 +293,7 @@ def crm_manager(request):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
-def crm_manager(request):
+def refresh_api(request):
     if request.method == 'GET':
         logger.info("start refresh api")
         load_level1_keys()
