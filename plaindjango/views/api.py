@@ -218,9 +218,8 @@ def send_direct_message(list_of_users, text):
             firstname = user["name"].split(' ')[0]
             message = "Hi " + firstname + ",\n\n" + text
             direct_message = tw_api.send_direct_message(user["id"], message)
-            logger.info("direct message id: " + direct_message.id)
-            tw_api.destroy_direct_message(direct_message.id)
-
+#           logger.info("direct message id: " + direct_message.id)
+#           tw_api.destroy_direct_message(direct_message.id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -273,25 +272,24 @@ def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
 
-        for key in level1_keys:
-            logger.info(key)
-            auth = tweepy.OAuthHandler(
-                key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
-            auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+    for key in level1_keys:
+        logger.info(key)
+        auth = tweepy.OAuthHandler(
+            key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+        auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
-            tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                                wait_on_rate_limit_notify=True)
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                            wait_on_rate_limit_notify=True)
 
-            direct_messages = tw_api.list_direct_messages()
+        direct_messages = tw_api.list_direct_messages()
 
-            logger.info("the number of messages is: " + len(direct_messages))
-            for direct_message in direct_messages:
-                logger.info(direct_message.created_timestamp)
-                logger.info("The type is : " + direct_message.type)
-                logger.info("The id is : " + direct_message.id)
-
-        logger.info("done CRM")
-        return HttpResponse("ok")
+        logger.info("the number of messages is: " + len(direct_messages))
+        for direct_message in direct_messages:
+            logger.info(direct_message.created_timestamp)
+            logger.info("The type is : " + direct_message.type)
+            logger.info("The id is : " + direct_message.id)
+    logger.info("done CRM")
+    return HttpResponse("ok")
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
