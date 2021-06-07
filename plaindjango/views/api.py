@@ -273,6 +273,30 @@ def send_direct_messages(request):
 def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
+        
 
+        keys = []
+        for key in level1_keys:
+            keys.append(key)
+        for key in level2_keys:
+            keys.append(key)
+        for key in level3_keys:
+            keys.append(key)
+
+        for key in keys:
+            logger.info(key)
+            auth = tweepy.OAuthHandler(
+                key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+            auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+
+            tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                                wait_on_rate_limit_notify=True)
+
+            direct_messages = tw_api.list_direct_messages(10)
+
+            for direct_message in direct_messages:
+                logger.info(direct_message.created_timestamp)
+                logger.info("The type is : " + direct_message.type)
+                logger.info("The id is : " + direct_message.id)
         logger.info("done CRM")
         return HttpResponse("ok")
