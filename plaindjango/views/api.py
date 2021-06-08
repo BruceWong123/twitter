@@ -303,7 +303,7 @@ def store_direct_message(direct_message):
 def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
-
+    load_level1_keys()
     for key in level1_keys:
         logger.info(key)
         db_users = mongo_db["messages"]
