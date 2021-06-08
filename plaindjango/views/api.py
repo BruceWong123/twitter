@@ -166,11 +166,7 @@ def get_seed_users(key_word):
             logger.info(data)
             db_users.update(key, data, upsert=True)
             logger.info("update done")
-            if count % 10 == 0:
-                time.sleep(100)
-            if count % 50 == 0:
-                time.sleep(1000)
-
+            time.sleep(1000)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -320,17 +316,17 @@ def crm_manager(request):
 
         logger.info("the number of messages is %d " % len(direct_messages))
         for direct_message in direct_messages:
-            # if direct_message.message_create['target']['recipient_id'] == '179379147':
-            logger.info(direct_message.created_timestamp)
-            logger.info("The type is : " + direct_message.type)
-            logger.info("The id is : " + direct_message.id)
-            logger.info("The recipient_id is : " +
-                        direct_message.message_create['target']['recipient_id'])
-            logger.info("The sender_id is : " +
-                        direct_message.message_create['sender_id'])
-            logger.info(
-                "The text is : " + str(direct_message.message_create['message_data']['text']))
-            # store_direct_message(direct_message)
+            if direct_message.message_create['target']['recipient_id'] == '179379147':
+                logger.info(direct_message.created_timestamp)
+                logger.info("The type is : " + direct_message.type)
+                logger.info("The id is : " + direct_message.id)
+                logger.info("The recipient_id is : " +
+                            direct_message.message_create['target']['recipient_id'])
+                logger.info("The sender_id is : " +
+                            direct_message.message_create['sender_id'])
+                logger.info(
+                    "The text is : " + str(direct_message.message_create['message_data']['text']))
+                store_direct_message(direct_message)
     logger.info("done CRM")
     return HttpResponse("ok")
 
