@@ -193,10 +193,7 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
                 count += 1
-                if count % 10 == 0:
-                    time.sleep(100)
-                if count % 50 == 0:
-                    time.sleep(1000)
+                time.sleep(120)
     logger.info("done inserting all into mongo")
 
 
@@ -216,6 +213,7 @@ def get_followers(user_name):
             logger.info("get new page with ids of %d" % len(ids))
             print("get new page with ids of %d" % len(ids))
             store_followers(ids)
+            time.sleep(3000)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
