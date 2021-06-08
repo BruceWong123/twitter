@@ -121,7 +121,7 @@ def get_twitter_api(level):
     auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
     auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
-    print(key)
+    logger.info(key)
 
     tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                         wait_on_rate_limit_notify=True)
