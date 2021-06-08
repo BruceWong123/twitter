@@ -50,6 +50,9 @@ def load_level3_keys():
         level3_keys.append(key)
     print("load level3 keys done ", len(level3_keys))
 
+    mysql_cursor.close()
+    mysql_connection.close()
+
 
 def load_level2_keys():
     mysql_connection = mysql.connect(
@@ -70,6 +73,8 @@ def load_level2_keys():
         key["ACCESS_SECRET"] = row[3]
         level2_keys.append(key)
     print("load level2 keys done ", len(level2_keys))
+    mysql_cursor.close()
+    mysql_connection.close()
 
 
 def load_level1_keys():
@@ -91,6 +96,8 @@ def load_level1_keys():
         key["ACCESS_SECRET"] = row[3]
         level1_keys.append(key)
     print("load level1 keys done ", len(level1_keys))
+    mysql_cursor.close()
+    mysql_connection.close()
 
 
 load_level1_keys()
@@ -273,6 +280,25 @@ def send_direct_messages(request):
         return HttpResponse("ok")
 
 
+def store_direct_message(direct_message):
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "INSERT INTO asynctask_message (messageid, sender, receiver, type, content, replied, time) VALUES (%s, %s,%s,%s,%s,%s,%s)"
+    val = (direct_message.id, direct_message.message_create['sender_id'],
+           direct_message.message_create['target']['recipient_id'], direct_message.type,
+           str(direct_message.message_create['message_data']['text']), "no", direct_message.created_timestamp)
+
+    mysql_cursor.execute(sql, val)
+
+    mysql_connection.commit()
+
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def crm_manager(request):
     if request.method == 'GET':
@@ -280,6 +306,7 @@ def crm_manager(request):
 
     for key in level1_keys:
         logger.info(key)
+        db_users = mongo_db["messages"]
         auth = tweepy.OAuthHandler(
             key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
         auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
@@ -291,16 +318,17 @@ def crm_manager(request):
 
         logger.info("the number of messages is %d " % len(direct_messages))
         for direct_message in direct_messages:
-            if direct_message.message_create['target']['recipient_id'] == '179379147':
-                logger.info(direct_message.created_timestamp)
-                logger.info("The type is : " + direct_message.type)
-                logger.info("The id is : " + direct_message.id)
-                logger.info("The recipient_id is : " +
-                            direct_message.message_create['target']['recipient_id'])
-                logger.info("The sender_id is : " +
-                            direct_message.message_create['sender_id'])
-                logger.info(
-                    "The text is : " + str(direct_message.message_create['message_data']['text']))
+            # if direct_message.message_create['target']['recipient_id'] == '179379147':
+            logger.info(direct_message.created_timestamp)
+            logger.info("The type is : " + direct_message.type)
+            logger.info("The id is : " + direct_message.id)
+            logger.info("The recipient_id is : " +
+                        direct_message.message_create['target']['recipient_id'])
+            logger.info("The sender_id is : " +
+                        direct_message.message_create['sender_id'])
+            logger.info(
+                "The text is : " + str(direct_message.message_create['message_data']['text']))
+            # store_direct_message(direct_message)
     logger.info("done CRM")
     return HttpResponse("ok")
 
