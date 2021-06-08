@@ -166,8 +166,11 @@ def get_seed_users(key_word):
             logger.info(data)
             db_users.update(key, data, upsert=True)
             logger.info("update done")
-            if count > 200:
-                break
+            if count % 10 == 0:
+                time.sleep(100)
+            if count % 50 == 0:
+                time.sleep(1000)
+
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -190,9 +193,10 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
                 count += 1
-                if count > 1000:
-                    break
-
+                if count % 10 == 0:
+                    time.sleep(100)
+                if count % 50 == 0:
+                    time.sleep(1000)
     logger.info("done inserting all into mongo")
 
 
