@@ -284,7 +284,7 @@ def store_direct_message(direct_message):
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "INSERT INTO asynctask_message (messageid, sender, receiver, type, content, replied, time) VALUES (%s, %s,%s,%s,%s,%s,%s)"
+    sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, time) VALUES (%s, %s,%s,%s,%s,%s,%s)"
     val = (direct_message.id, direct_message.message_create['sender_id'],
            direct_message.message_create['target']['recipient_id'], direct_message.type,
            str(direct_message.message_create['message_data']['text']), "no", direct_message.created_timestamp)
