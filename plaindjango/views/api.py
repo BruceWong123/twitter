@@ -114,6 +114,7 @@ def get_twitter_api(level):
     if level == 1:
         print("111")
         key_list = level1_keys
+        print("level1 keys len ", len(level1_keys))
     elif level == 2:
         print("222")
         key_list = level2_keys
