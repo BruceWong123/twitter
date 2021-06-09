@@ -92,6 +92,7 @@ def load_level1_keys():
     query_result = mysql_cursor.fetchall()
 
     for row in query_result:
+        print("level 1111")
         key = {}
         key["CONSUMER_KEY"] = row[0]
         key["CONSUMER_SECRET"] = row[1]
