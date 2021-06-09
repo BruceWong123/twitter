@@ -229,11 +229,15 @@ def get_followers(user_name):
 
 def send_direct_message(list_of_users, text):
     logger.info("into direct message")
+    logger.info("Set up Threading send direct message")
+    logger.info('Number of current threads is %d', threading.active_count())
+    logger.info("send direct message >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     logger.info(list_of_users)
     tw_api = get_twitter_api(1)
 
     try:
         for user in list_of_users:
+            logger.info("in circle")
             logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
             message = "Hi " + firstname + ",\n\n" + text
@@ -244,6 +248,7 @@ def send_direct_message(list_of_users, text):
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         send_error_message(tw_api, format(e))
+    logger.info("done threading send DM")
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
