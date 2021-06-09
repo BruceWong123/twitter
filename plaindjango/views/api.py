@@ -302,6 +302,7 @@ def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
     load_level1_keys()
+    print("level1 keys: %d" % len(level1_keys))
     for key in level1_keys:
         logger.info(key)
         db_users = mongo_db["messages"]
