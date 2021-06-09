@@ -98,6 +98,7 @@ def load_level1_keys():
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
         level1_keys.append(key)
+    print("load level2 keys done ", len(level1_keys))
     mysql_cursor.close()
     mysql_connection.close()
 
