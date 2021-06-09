@@ -98,7 +98,7 @@ def load_level1_keys():
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
         level1_keys.append(key)
-    print("load level2 keys done ", len(level1_keys))
+    print("load level1 keys done ", len(level1_keys))
     mysql_cursor.close()
     mysql_connection.close()
 
@@ -118,7 +118,9 @@ def get_twitter_api(level):
     elif level == 3:
         key_list = level3_keys
     print("stop %d" % (len(key_list)-1))
-    idx = random.randint(0, len(key_list)-1)
+    idx = 0
+    if len(key_list) > 1:
+        idx = random.randint(0, len(key_list)-1)
     print("get random index %d", idx)
     key = key_list[idx]
     auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
