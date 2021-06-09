@@ -31,6 +31,7 @@ PASSWORD = "abc12341"
 
 
 def load_level3_keys():
+    level3_keys = []
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -55,6 +56,7 @@ def load_level3_keys():
 
 
 def load_level2_keys():
+    level2_keys = []
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -78,6 +80,7 @@ def load_level2_keys():
 
 
 def load_level1_keys():
+    level1_keys = []
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
