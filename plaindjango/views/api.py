@@ -48,6 +48,7 @@ def load_level3_keys():
         key["CONSUMER_SECRET"] = row[1]
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
+        key["ID"] = row[7]
         level3_keys.append(key)
     print("load level3 keys done ", len(level3_keys))
 
@@ -73,6 +74,7 @@ def load_level2_keys():
         key["CONSUMER_SECRET"] = row[1]
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
+        key["ID"] = row[7]
         level2_keys.append(key)
     print("load level2 keys done ", len(level2_keys))
     mysql_cursor.close()
@@ -97,6 +99,7 @@ def load_level1_keys():
         key["CONSUMER_SECRET"] = row[1]
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
+        key["ID"] = row[7]
         level1_keys.append(key)
     print("load level1 keys done ", len(level1_keys))
     mysql_cursor.close()
@@ -331,7 +334,7 @@ def crm_manager(request):
 
         logger.info("the number of messages is %d " % len(direct_messages))
         for direct_message in direct_messages:
-            if direct_message.message_create['target']['recipient_id'] == '179379147':
+            if direct_message.message_create['target']['recipient_id'] == key["ID"]:
                 logger.info(direct_message.created_timestamp)
                 logger.info("The type is : " + direct_message.type)
                 logger.info("The id is : " + direct_message.id)
