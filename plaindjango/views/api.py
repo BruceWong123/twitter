@@ -12,6 +12,7 @@ from time import sleep, ctime
 import sys
 import mysql.connector as mysql
 import random
+from datetime import datetime
 logger = logging.getLogger('django')
 
 
@@ -31,12 +32,23 @@ PASSWORD = "abc12341"
 
 
 def insert_stat_info(user, dm, reply):
-    if user > 0:
+    logger.info("record stat %s %s %s" % (user, dm, reply))
+    if user == 0 and dm == 0 and reply == 0:
         pass
-    elif dm > 0:
-        pass
-    elif reply > 0:
-        pass
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "INSERT ignore INTO asynctask_stat (new_user, dm, reply, date) VALUES (%s, %s,%s,%s)"
+    val = (user, dm, reply, datetime.now())
+
+    mysql_cursor.execute(sql, val)
+
+    logger.info("insert stat done")
+
+    mysql_cursor.close()
+    mysql_connection.close()
 
 
 def load_level3_keys():
