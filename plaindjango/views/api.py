@@ -272,7 +272,7 @@ def send_direct_message(list_of_users, text, tw_api, is_reply):
             message = "Hi " + firstname + ",\n\n" + text
             if is_reply:
                 logger.info("it is a reply")
-                messsage = text
+                message = text
             direct_message = tw_api.send_direct_message(user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
