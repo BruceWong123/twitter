@@ -344,7 +344,7 @@ def send_direct_messages(request):
         return HttpResponse("ok")
 
 
-def store_direct_message(direct_message):
+def store_direct_message(direct_message, sender_name, receiver_name):
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -352,10 +352,10 @@ def store_direct_message(direct_message):
 
     date = datetime.fromtimestamp(int(direct_message.created_timestamp)/1000)
     date_object = date.date().isoformat()
-    sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date) VALUES (%s, %s,%s,%s,%s,%s,%s)"
+    sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s)"
     val = (direct_message.id, direct_message.message_create['sender_id'],
            direct_message.message_create['target']['recipient_id'], direct_message.type,
-           str(direct_message.message_create['message_data']['text']), "no", date_object)
+           str(direct_message.message_create['message_data']['text']), "no", date_object, sender_name, receiver_name)
 
     mysql_cursor.execute(sql, val)
 
@@ -396,7 +396,12 @@ def crm_manager(request):
                             direct_message.message_create['sender_id'])
                 logger.info(
                     "The text is : " + str(direct_message.message_create['message_data']['text']))
-                store_direct_message(direct_message)
+                sender_name = tw_api.get_user(
+                    direct_message.message_create['sender_id']).screen_name
+                receiver_name = tw_api.get_user(
+                    direct_message.message_create['target']['recipient_id']).screen_name
+                store_direct_message(
+                    direct_message, sender_name, receiver_name)
                 count += 1
         insert_stat_info(0, 0, count)
     logger.info("done CRM")
