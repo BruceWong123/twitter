@@ -400,6 +400,9 @@ def crm_manager(request):
                     direct_message.message_create['sender_id']).screen_name
                 receiver_name = tw_api.get_user(
                     direct_message.message_create['target']['recipient_id']).screen_name
+
+                logger.info("sender name %s %s " %
+                            (sender_name, receiver_name))
                 store_direct_message(
                     direct_message, sender_name, receiver_name)
                 count += 1
