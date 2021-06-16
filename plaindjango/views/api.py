@@ -256,7 +256,7 @@ def get_followers(user_name):
     print("done loading all followers")
 
 
-def send_direct_message(list_of_users, text, tw_api):
+def send_direct_message(list_of_users, text, tw_api, is_reply):
     logger.info("into direct message")
     logger.info("Set up Threading send direct message")
     logger.info('Number of current threads is %d', threading.active_count())
@@ -268,7 +268,10 @@ def send_direct_message(list_of_users, text, tw_api):
             logger.info("in circle")
             logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
+
             message = "Hi " + firstname + ",\n\n" + text
+            if is_reply:
+                messsage = text
             direct_message = tw_api.send_direct_message(user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
@@ -313,12 +316,14 @@ def send_direct_messages(request):
 
         content = request_body["content"]
         tw_api = get_twitter_api(1)
+        is_reply = False
         if request_body["api_id"] is not None:
             tw_api = get_twitter_api_by_id(request_body["api_id"])
+            is_reply = True
         logger.info(user_list)
         logger.info(content)
         t = threading.Thread(target=send_direct_message,
-                             args=(user_list, content, tw_api))
+                             args=(user_list, content, tw_api, is_reply))
         t.start()
         logger.info("done DM")
         return HttpResponse("ok")
