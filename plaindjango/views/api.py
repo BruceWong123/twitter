@@ -42,7 +42,7 @@ def insert_stat_info(user, dm, reply):
 
     sql = "INSERT ignore INTO asynctask_stat (new_user, dm, reply, date) VALUES (%s, %s,%s,%s)"
     val = (user, dm, reply, datetime.now())
-
+    logger.info(val)
     mysql_cursor.execute(sql, val)
 
     logger.info("insert stat done")
