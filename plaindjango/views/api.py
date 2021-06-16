@@ -271,6 +271,7 @@ def send_direct_message(list_of_users, text, tw_api, is_reply):
 
             message = "Hi " + firstname + ",\n\n" + text
             if is_reply:
+                logger.info("it is a reply")
                 messsage = text
             direct_message = tw_api.send_direct_message(user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
@@ -318,6 +319,7 @@ def send_direct_messages(request):
         tw_api = get_twitter_api(1)
         is_reply = False
         if request_body["api_id"] is not None:
+            logger.info("found api id in request")
             tw_api = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
         logger.info(user_list)
