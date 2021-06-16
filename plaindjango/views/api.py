@@ -371,18 +371,18 @@ def crm_manager(request):
         logger.info("the number of messages is %d " % len(direct_messages))
         count = 0
         for direct_message in direct_messages:
-            # if direct_message.message_create['target']['recipient_id'] == key["ID"]:
-            logger.info(direct_message.created_timestamp)
-            logger.info("The type is : " + direct_message.type)
-            logger.info("The id is : " + direct_message.id)
-            logger.info("The recipient_id is : " +
-                        direct_message.message_create['target']['recipient_id'])
-            logger.info("The sender_id is : " +
-                        direct_message.message_create['sender_id'])
-            logger.info(
-                "The text is : " + str(direct_message.message_create['message_data']['text']))
-            store_direct_message(direct_message)
-            count += 1
+            if direct_message.message_create['target']['recipient_id'] == key["ID"]:
+                logger.info(direct_message.created_timestamp)
+                logger.info("The type is : " + direct_message.type)
+                logger.info("The id is : " + direct_message.id)
+                logger.info("The recipient_id is : " +
+                            direct_message.message_create['target']['recipient_id'])
+                logger.info("The sender_id is : " +
+                            direct_message.message_create['sender_id'])
+                logger.info(
+                    "The text is : " + str(direct_message.message_create['message_data']['text']))
+                store_direct_message(direct_message)
+                count += 1
         insert_stat_info(0, 0, count)
     logger.info("done CRM")
     return HttpResponse("ok")
