@@ -318,7 +318,7 @@ def send_direct_messages(request):
         content = request_body["content"]
         tw_api = get_twitter_api(1)
         is_reply = False
-        if request_body["api_id"] is not None:
+        if 'api_id' in request_body.keys():
             logger.info("found api id in request")
             tw_api = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
