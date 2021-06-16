@@ -34,16 +34,17 @@ PASSWORD = "abc12341"
 def insert_stat_info(user, dm, reply):
     logger.info("record stat %s %s %s" % (user, dm, reply))
     if user == 0 and dm == 0 and reply == 0:
-        pass
+        return
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "INSERT ignore INTO asynctask_stat (new_user, dm, reply, date) VALUES (%s, %s,%s,%s)"
+    sql = "INSERT INTO asynctask_stat (new_user, dm, reply, date) VALUES (%s, %s,%s,%s)"
     val = (user, dm, reply, datetime.now())
     logger.info(val)
     mysql_cursor.execute(sql, val)
+    mysql_connection.commit()
 
     logger.info("insert stat done")
 
