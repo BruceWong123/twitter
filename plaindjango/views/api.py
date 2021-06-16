@@ -352,7 +352,7 @@ def store_direct_message(direct_message, sender_name, receiver_name):
 
     date = datetime.fromtimestamp(int(direct_message.created_timestamp)/1000)
     date_object = date.date().isoformat()
-    sql = "REPLACE INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
     val = (direct_message.id, direct_message.message_create['sender_id'],
            direct_message.message_create['target']['recipient_id'], direct_message.type,
            str(direct_message.message_create['message_data']['text']), "no", date_object, sender_name, receiver_name, " ")
