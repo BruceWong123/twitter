@@ -30,6 +30,15 @@ PASSWORD = "abc12341"
 # connect to MySQL server
 
 
+def insert_stat_info(user, dm, reply):
+    if user > 0:
+        pass
+    elif dm > 0:
+        pass
+    elif reply > 0:
+        pass
+
+
 def load_level3_keys():
     level3_keys.clear()
     mysql_connection = mysql.connect(
@@ -109,6 +118,22 @@ def load_level1_keys():
 load_level1_keys()
 load_level2_keys()
 load_level3_keys()
+
+
+def get_twitter_api_by_id(api_id):
+    for key in level1_keys:
+        if key["ID"] == api_id:
+            auth = tweepy.OAuthHandler(
+                key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+            auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+
+            logger.info(key)
+
+            tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                                wait_on_rate_limit_notify=True)
+            return tw_api
+    logger.info("could not find api by id !!!!!!!")
+    return None
 
 
 def get_twitter_api(level):
@@ -202,6 +227,7 @@ def store_followers(ids):
                 db_users.update(key, data, upsert=True)
                 count += 1
                 time.sleep(120)
+    insert_stat_info(count, 0, 0)
     logger.info("done inserting all into mongo")
 
 
@@ -230,13 +256,12 @@ def get_followers(user_name):
     print("done loading all followers")
 
 
-def send_direct_message(list_of_users, text):
+def send_direct_message(list_of_users, text, tw_api):
     logger.info("into direct message")
     logger.info("Set up Threading send direct message")
     logger.info('Number of current threads is %d', threading.active_count())
     logger.info("send direct message >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     logger.info(list_of_users)
-    tw_api = get_twitter_api(1)
 
     try:
         for user in list_of_users:
@@ -247,6 +272,7 @@ def send_direct_message(list_of_users, text):
             direct_message = tw_api.send_direct_message(user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
+        insert_stat_info(0, len(list_of_users), 0)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -286,10 +312,13 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
+        tw_api = get_twitter_api(1)
+        if request_body["api_id"] is not None:
+            tw_api = get_twitter_api_by_id(request_body["api_id"])
         logger.info(user_list)
         logger.info(content)
         t = threading.Thread(target=send_direct_message,
-                             args=(user_list, content))
+                             args=(user_list, content, tw_api))
         t.start()
         logger.info("done DM")
         return HttpResponse("ok")
@@ -333,6 +362,7 @@ def crm_manager(request):
         direct_messages = tw_api.list_direct_messages()
 
         logger.info("the number of messages is %d " % len(direct_messages))
+        count = 0
         for direct_message in direct_messages:
             if direct_message.message_create['target']['recipient_id'] == key["ID"]:
                 logger.info(direct_message.created_timestamp)
@@ -345,6 +375,8 @@ def crm_manager(request):
                 logger.info(
                     "The text is : " + str(direct_message.message_create['message_data']['text']))
                 store_direct_message(direct_message)
+                count += 1
+        insert_stat_info(0, 0, count)
     logger.info("done CRM")
     return HttpResponse("ok")
 
