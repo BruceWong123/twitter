@@ -350,7 +350,7 @@ def store_direct_message(direct_message):
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    date = datetime.fromtimestamp(int(direct_message.created_timestamp))
+    date = datetime.fromtimestamp(int(direct_message.created_timestamp)/1000)
     date_object = date.date().isoformat()
     sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date) VALUES (%s, %s,%s,%s,%s,%s,%s)"
     val = (direct_message.id, direct_message.message_create['sender_id'],
