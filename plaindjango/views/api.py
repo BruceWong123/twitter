@@ -137,7 +137,7 @@ def get_twitter_api_by_id(api_id):
 
 
 def get_twitter_api(level):
-    print("level %d " % level)
+    logger.info("level %d " % level)
     key_list = []
     if level == 1:
         print("111")
@@ -149,11 +149,11 @@ def get_twitter_api(level):
     elif level == 3:
         print("333")
         key_list = level3_keys
-    print("stop %d" % (len(key_list)-1))
+    logger.info("stop %d" % (len(key_list)-1))
     idx = 0
     if len(key_list) > 1:
         idx = random.randint(0, len(key_list)-1)
-    print("get random index %d", idx)
+    logger.info("get random index %d", idx)
     key = key_list[idx]
     auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
     auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
