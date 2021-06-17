@@ -110,7 +110,7 @@ def insert_last_reply(user_id, last_timestamp):
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "Update asynctask_api_key Set last_reply = " + last_timestamp + " Where user_id = " + \
+    sql = "Update asynctask_api_key Set last_reply = \"" + str(last_timestamp) + "\" Where user_id = " + \
         "\"" + str(user_id) + "\""
     mysql_cursor.execute(sql)
 
