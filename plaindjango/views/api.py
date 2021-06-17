@@ -411,7 +411,7 @@ def crm_manager(request):
         last_timestamp = 0
         for direct_message in direct_messages:
             last_timestamp = max(
-                last_timestamp, direct_message.created_timestamp)
+                int(last_timestamp), int(direct_message.created_timestamp))
             logger.info("last time stamp %s " % last_timestamp)
             logger.info("message time stamp %s " %
                         direct_message.created_timestamp)
