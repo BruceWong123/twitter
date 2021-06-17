@@ -103,6 +103,22 @@ def load_level2_keys():
     mysql_connection.close()
 
 
+def insert_last_reply(user_id, last_timestamp):
+
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "Update asynctask_api_key Set last_reply = " + last_timestamp + " Where user_id = " + \
+        "\"" + user_id + "\""
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 def load_level1_keys():
     level1_keys.clear()
     mysql_connection = mysql.connect(
@@ -122,6 +138,8 @@ def load_level1_keys():
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
         key["ID"] = row[7]
+        key["LAST"] = row[10]  # date for last crawling of reply message
+
         level1_keys.append(key)
     print("load level1 keys done ", len(level1_keys))
     mysql_cursor.close()
@@ -239,8 +257,11 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
                 count += 1
+                if count % 50 == 0:
+                    insert_stat_info(50, 0, 0)
+
                 time.sleep(120)
-    insert_stat_info(count, 0, 0)
+
     logger.info("done inserting all into mongo")
 
 
@@ -387,8 +408,14 @@ def crm_manager(request):
 
         logger.info("the number of messages is %d " % len(direct_messages))
         count = 0
+        last_timestamp = 0
         for direct_message in direct_messages:
-            if direct_message.message_create['target']['recipient_id'] == key["ID"]:
+            last_timestamp = max(
+                last_timestamp, direct_message.created_timestamp)
+            logger.info("last time stamp %s " % last_timestamp)
+            logger.info("message time stamp %s " %
+                        direct_message.created_timestamp)
+            if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                 logger.info(direct_message.created_timestamp)
                 logger.info("The type is : " + direct_message.type)
                 logger.info("The id is : " + direct_message.id)
@@ -408,6 +435,7 @@ def crm_manager(request):
                 store_direct_message(
                     direct_message, sender_name, receiver_name)
                 count += 1
+            insert_last_reply(key['ID'], last_timestamp)
         insert_stat_info(0, 0, count)
     logger.info("done CRM")
     return HttpResponse("ok")
