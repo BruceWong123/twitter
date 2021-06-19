@@ -347,13 +347,19 @@ def get_id_by_name(request, user_name):
     if request.method == 'GET':
         logger.info("find id for %s " % user_name)
         user_name = user_name.strip()
-        (tw_api, key_id) = get_twitter_api(2)
-        user = tw_api.get_user(user_name)
+        try:
+            (tw_api, key_id) = get_twitter_api(2)
+            user = tw_api.get_user(user_name)
 
-        # fetching the ID
-        ID = user.id_str
-        logger.info(ID)
-        return HttpResponse(str(ID))
+            # fetching the ID
+            ID = user.id_str
+            logger.info(ID)
+            return HttpResponse(str(ID))
+        except tweepy.TweepError as e:
+            print("Tweepy Error: {}".format(e))
+            logger.info("Tweepy Error: {}".format(e))
+            send_error_message(tw_api, format(e), key_id)
+            return HttpResponse(str(format(e)))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
