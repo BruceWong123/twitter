@@ -178,7 +178,31 @@ def get_twitter_api_by_id(api_id):
     return None
 
 
-def get_twitter_api(level):
+def get_free_proxy():
+    logger.info("into get free proxy")
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_proxy WHERE status = 'yes'"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+    proxies = []
+    for row in query_result:
+        proxies.append(row[0])
+    logger.info("get proxies with len %d " % len(proxies))
+    mysql_cursor.close()
+    mysql_connection.close()
+
+    if len(proxies) > 0:
+        idx = random.randint(0, len(proxies)-1)
+        return proxies[idx]
+    else:
+        return None
+
+
+def get_twitter_api(level, use_proxy=False):
     logger.info("level %d " % level)
     key_list = []
     if level == 1:
@@ -201,9 +225,16 @@ def get_twitter_api(level):
     auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
     logger.info(key)
+    tw_api = None
+    free_proxy = get_free_proxy()
+    if use_proxy and free_proxy != None:
+        logger.info("generate api by proxy %s " % free_proxy)
+        tw_api = tweepy.API(auth, proxy=free_proxy, wait_on_rate_limit=True,
+                            wait_on_rate_limit_notify=True)
+    else:
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                            wait_on_rate_limit_notify=True)
 
-    tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                        wait_on_rate_limit_notify=True)
     return (tw_api, key["ID"])
 
 
@@ -240,7 +271,8 @@ def set_api_status(tw_api, error_message, key_id):
     mysql_connection.close()
 
     try:
-        tw_api.send_direct_message("bruce_ywong", error_message)
+        if error_message != "normal":
+            tw_api.send_direct_message("bruce_ywong", error_message)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -357,7 +389,7 @@ def get_id_by_name(request, user_name):
         logger.info("find id for %s " % user_name)
         user_name = user_name.strip()
         try:
-            tw_api, key_id = get_twitter_api(2)
+            tw_api, key_id = get_twitter_api(2, True)
             user = tw_api.get_user(user_name)
 
             # fetching the ID
