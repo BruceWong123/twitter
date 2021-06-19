@@ -250,7 +250,7 @@ def get_seed_users(key_word):
     print("get seed users")
     logger.info("get seed users on %s " % key_word)
     db_users = mongo_db["seedusers"]
-    (tw_api, key_id) = get_twitter_api(3)
+    tw_api, key_id = get_twitter_api(3)
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
@@ -272,7 +272,7 @@ def get_seed_users(key_word):
 
 def store_followers(ids):
     logger.info("start inserting all into mongo")
-    (tw_api, key_id) = get_twitter_api(2)
+    tw_api, key_id = get_twitter_api(2)
     db_users = mongo_db["users"]
     count = 0
     for i, uid in enumerate(ids):
@@ -299,7 +299,7 @@ def get_followers(user_name):
     logger.info("Set up Threading get followers of %s" % user_name)
     logger.info('Number of current threads is %d', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    (tw_api, key_id) = get_twitter_api(2)
+    tw_api, key_id = get_twitter_api(2)
 
     count = 0
     try:
@@ -354,7 +354,7 @@ def get_id_by_name(request, user_name):
         logger.info("find id for %s " % user_name)
         user_name = user_name.strip()
         try:
-            (tw_api, key_id) = get_twitter_api(2)
+            tw_api, key_id = get_twitter_api(2)
             user = tw_api.get_user(user_name)
 
             # fetching the ID
@@ -400,11 +400,11 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
-        (tw_api, key_id) = get_twitter_api(1)
+        tw_api, key_id = get_twitter_api(1)
         is_reply = False
         if 'api_id' in request_body.keys():
             logger.info("found api id in request")
-            (tw_api, key_id) = get_twitter_api_by_id(request_body["api_id"])
+            tw_api, key_id = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
         logger.info(user_list)
         logger.info(content)
@@ -448,7 +448,7 @@ def create_friendship_by_id(userID, tw_api, key_id):
 
 
 def get_trends():
-    (tw_api, key_id) = get_twitter_api(2)
+    tw_api, key_id = get_twitter_api(2)
     # trends = tw_api.trends_available()
     # for trend in trends:
     #     logger.info(trend)
