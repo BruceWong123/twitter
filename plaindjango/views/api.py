@@ -225,7 +225,7 @@ print(
 
 
 def send_error_message(tw_api, error_message, key_id):
-    direct_message = tw_api.send_direct_message("bruce_ywong", error_message)
+
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -238,6 +238,12 @@ def send_error_message(tw_api, error_message, key_id):
     mysql_connection.commit()
     mysql_cursor.close()
     mysql_connection.close()
+
+    try:
+        tw_api.send_direct_message("bruce_ywong", error_message)
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
 
 
 def get_seed_users(key_word):
