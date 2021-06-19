@@ -204,7 +204,7 @@ def get_twitter_api(level):
 
     tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                         wait_on_rate_limit_notify=True)
-    return tw_api
+    return (tw_api, key["ID"])
 
 
 get_twitter_api(1)
@@ -224,15 +224,27 @@ print(
 )
 
 
-def send_error_message(tw_api, error_message):
+def send_error_message(tw_api, error_message, key_id):
     direct_message = tw_api.send_direct_message("bruce_ywong", error_message)
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "Update asynctask_api_key Set status = \"" + error_message + "\" Where user_id = " + \
+        "\"" + str(key_id) + "\""
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
 
 
 def get_seed_users(key_word):
     print("get seed users")
     logger.info("get seed users on %s " % key_word)
     db_users = mongo_db["seedusers"]
-    tw_api = get_twitter_api(3)
+    (tw_api, key_id) = get_twitter_api(3)
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
@@ -249,12 +261,12 @@ def get_seed_users(key_word):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e))
+        send_error_message(tw_api, format(e), key_id)
 
 
 def store_followers(ids):
     logger.info("start inserting all into mongo")
-    tw_api = get_twitter_api(2)
+    (tw_api, key_id) = get_twitter_api(2)
     db_users = mongo_db["users"]
     count = 0
     for i, uid in enumerate(ids):
@@ -281,7 +293,7 @@ def get_followers(user_name):
     logger.info("Set up Threading get followers of %s" % user_name)
     logger.info('Number of current threads is %d', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    tw_api = get_twitter_api(2)
+    (tw_api, key_id) = get_twitter_api(2)
 
     count = 0
     try:
@@ -296,12 +308,12 @@ def get_followers(user_name):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e))
+        send_error_message(tw_api, format(e), key_id)
     logger.info("done loading all followers")
     print("done loading all followers")
 
 
-def send_direct_message(list_of_users, text, tw_api, is_reply):
+def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
     logger.info("into direct message")
     logger.info("Set up Threading send direct message")
     logger.info('Number of current threads is %d', threading.active_count())
@@ -318,14 +330,15 @@ def send_direct_message(list_of_users, text, tw_api, is_reply):
             if is_reply:
                 logger.info("it is a reply")
                 message = text
-            direct_message = tw_api.send_direct_message(user["id"], message)
+            direct_message = tw_api.send_direct_message(
+                user["id"], message, key_id)
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
         insert_stat_info(0, len(list_of_users), 0)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e))
+        send_error_message(tw_api, format(e), key_id)
     logger.info("done threading send DM")
 
 
@@ -334,7 +347,7 @@ def get_id_by_name(request, user_name):
     if request.method == 'GET':
         logger.info("find id for %s " % user_name)
         user_name = user_name.strip()
-        tw_api = get_twitter_api(2)
+        (tw_api, key_id) = get_twitter_api(2)
         user = tw_api.get_user(user_name)
 
         # fetching the ID
@@ -375,16 +388,16 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
-        tw_api = get_twitter_api(1)
+        (tw_api, key_id) = get_twitter_api(1)
         is_reply = False
         if 'api_id' in request_body.keys():
             logger.info("found api id in request")
-            tw_api = get_twitter_api_by_id(request_body["api_id"])
+            (tw_api, key_id) = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
         logger.info(user_list)
         logger.info(content)
         t = threading.Thread(target=send_direct_message,
-                             args=(user_list, content, tw_api, is_reply))
+                             args=(user_list, content, tw_api, is_reply, key_id))
         t.start()
         logger.info("done DM")
         return HttpResponse("ok")
@@ -413,17 +426,17 @@ def store_direct_message(direct_message, sender_name, receiver_name):
     mysql_connection.close()
 
 
-def create_friendship_by_id(userID, tw_api):
+def create_friendship_by_id(userID, tw_api, key_id):
     try:
         tw_api.CreateFriendship(userID)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e))
+        send_error_message(tw_api, format(e), key_id)
 
 
 def get_trends():
-    tw_api = get_twitter_api(2)
+    (tw_api, key_id) = get_twitter_api(2)
     # trends = tw_api.trends_available()
     # for trend in trends:
     #     logger.info(trend)
@@ -526,7 +539,7 @@ def crm_manager(request):
                             (sender_name, receiver_name))
 
                 create_friendship_by_id(
-                    direct_message.message_create['sender_id'], tw_api)
+                    direct_message.message_create['sender_id'], tw_api, key["ID"])
                 logger.info("followed user by id")
                 store_direct_message(
                     direct_message, sender_name, receiver_name)
