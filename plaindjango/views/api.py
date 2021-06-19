@@ -224,7 +224,7 @@ print(
 )
 
 
-def send_error_message(tw_api, error_message, key_id):
+def set_api_status(tw_api, error_message, key_id):
 
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
@@ -264,10 +264,11 @@ def get_seed_users(key_word):
             db_users.update(key, data, upsert=True)
             logger.info("update done")
             time.sleep(1000)
+        set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e), key_id)
+        set_api_status(tw_api, format(e), key_id)
 
 
 def store_followers(ids):
@@ -311,10 +312,11 @@ def get_followers(user_name):
             print("get new page with ids of %d" % len(ids))
             store_followers(ids)
             time.sleep(3000)
+        set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e), key_id)
+        set_api_status(tw_api, format(e), key_id)
     logger.info("done loading all followers")
     print("done loading all followers")
 
@@ -341,10 +343,11 @@ def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
         insert_stat_info(0, len(list_of_users), 0)
+        set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e), key_id)
+        set_api_status(tw_api, format(e), key_id)
     logger.info("done threading send DM")
 
 
@@ -360,11 +363,12 @@ def get_id_by_name(request, user_name):
             # fetching the ID
             ID = user.id_str
             logger.info(ID)
+            set_api_status(tw_api, "normal", key_id)
             return HttpResponse(str(ID))
         except tweepy.TweepError as e:
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
-            send_error_message(tw_api, format(e), key_id)
+            set_api_status(tw_api, format(e), key_id)
             return HttpResponse(str(format(e)))
 
 
@@ -441,10 +445,11 @@ def store_direct_message(direct_message, sender_name, receiver_name):
 def create_friendship_by_id(userID, tw_api, key_id):
     try:
         tw_api.CreateFriendship(userID)
+        set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        send_error_message(tw_api, format(e), key_id)
+        set_api_status(tw_api, format(e), key_id)
 
 
 def get_trends():
