@@ -190,7 +190,8 @@ def get_free_proxy():
     query_result = mysql_cursor.fetchall()
     proxies = []
     for row in query_result:
-        proxies.append(row[0])
+        logger.info(row[0])
+        proxies.append(row[1])
     logger.info("get proxies with len %d " % len(proxies))
     mysql_cursor.close()
     mysql_connection.close()
