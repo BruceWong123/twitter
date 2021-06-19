@@ -59,7 +59,7 @@ def load_level3_keys():
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level3'"
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '3'"
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -71,6 +71,7 @@ def load_level3_keys():
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
         key["ID"] = row[7]
+        key["LAST"] = row[10]
         level3_keys.append(key)
     print("load level3 keys done ", len(level3_keys))
 
@@ -85,7 +86,7 @@ def load_level2_keys():
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level2'"
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '2'"
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -97,6 +98,7 @@ def load_level2_keys():
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
         key["ID"] = row[7]
+        key["LAST"] = row[10]
         level2_keys.append(key)
     print("load level2 keys done ", len(level2_keys))
     mysql_cursor.close()
@@ -126,7 +128,7 @@ def load_level1_keys():
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "SELECT * FROM asynctask_api_key WHERE status = 'level1'"
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '1'"
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -149,6 +151,15 @@ def load_level1_keys():
 load_level1_keys()
 load_level2_keys()
 load_level3_keys()
+
+
+def get_api_by_key(key):
+    auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
+    auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+
+    tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                        wait_on_rate_limit_notify=True)
+    return tw_api
 
 
 def get_twitter_api_by_id(api_id):
@@ -319,6 +330,20 @@ def send_direct_message(list_of_users, text, tw_api, is_reply):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
+def get_id_by_name(request, user_name):
+    if request.method == 'GET':
+        logger.info("find id for %s " % user_name)
+        user_name = user_name.strip()
+        tw_api = get_twitter_api(2)
+        user = tw_api.get_user(user_name)
+
+        # fetching the ID
+        ID = user.id_str
+        logger.info(ID)
+        return HttpResponse(str(ID))
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
@@ -388,6 +413,73 @@ def store_direct_message(direct_message, sender_name, receiver_name):
     mysql_connection.close()
 
 
+def create_friendship_by_id(userID, tw_api):
+    try:
+        tw_api.CreateFriendship(userID)
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
+        send_error_message(tw_api, format(e))
+
+
+def get_trends():
+    tw_api = get_twitter_api(2)
+    # trends = tw_api.trends_available()
+    # for trend in trends:
+    #     logger.info(trend)
+
+    SF_WOE_ID = 2487956
+    sf_trends = tw_api.trends_place(SF_WOE_ID)
+    trends = json.loads(json.dumps(sf_trends, indent=1))
+
+    for trend in trends[0]["trends"]:
+        print(trend["name"])
+
+
+def get_tweets_by_keyword(key):
+    tw_api = get_api_by_key(key)
+    search_words = "#Zimbabwe"
+    date_since = key["LAST"]
+    tweets = tweepy.Cursor(tw_api.search,
+                           q=search_words,
+                           lang="en",
+                           since=date_since).items(10)
+    ids = []
+    for tweet in tweets:
+        logger.info("content %s " % tweet.text)
+        logger.info("ID %s " % tweet.id)
+        ids.append(tweet.id)
+    return ids
+
+
+def humanize_by_key(key):
+    tw_api = get_api_by_key(key)
+    ids = get_tweets_by_keyword(key)
+
+    logger.info("get ids back with len %d " % len(ids))
+    logger.info(key)
+    if len(ids) > 0:
+        idx = random.randint(0, len(ids)-1)
+        tw_api.retweet(ids[idx])
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
+def humanize(request):
+    if request.method == 'GET':
+        logger.info("into humanize")
+        keys = []
+        for key in level1_keys:
+            keys.append(key)
+        for key in level2_keys:
+            keys.append(key)
+        for key in level3_keys:
+            keys.append(key)
+        for key in keys:
+            humanize_by_key(key)
+        logger.info("done")
+        return HttpResponse("ok")
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def crm_manager(request):
     if request.method == 'GET':
@@ -432,6 +524,10 @@ def crm_manager(request):
 
                 logger.info("sender name %s %s " %
                             (sender_name, receiver_name))
+
+                create_friendship_by_id(
+                    direct_message.message_create['sender_id'], tw_api)
+                logger.info("followed user by id")
                 store_direct_message(
                     direct_message, sender_name, receiver_name)
                 count += 1
