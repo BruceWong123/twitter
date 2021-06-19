@@ -209,7 +209,7 @@ def get_twitter_api(level):
 
 get_twitter_api(1)
 get_twitter_api(2)
-get_twitter_api(3)
+# get_twitter_api(3)
 
 host = '43.130.32.126'
 port = 27017
