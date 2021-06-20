@@ -20,6 +20,7 @@ level3_keys = []
 level2_keys = []
 level1_keys = []
 
+dm_contents = []
 
 HOST = "170.106.188.105"  # or "domain.com"
 # database name, if you want just to connect to MySQL server, leave it empty
@@ -105,6 +106,24 @@ def load_level2_keys():
     mysql_connection.close()
 
 
+def load_dmcontents():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_campaign_content"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        dm_contents.append(row[1])
+    print("load dm content done ", len(dm_contents))
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 def insert_last_reply(user_id, last_timestamp):
 
     mysql_connection = mysql.connect(
@@ -151,6 +170,7 @@ def load_level1_keys():
 load_level1_keys()
 load_level2_keys()
 load_level3_keys()
+load_dmcontents()
 
 
 def get_api_by_key(key):
@@ -190,7 +210,6 @@ def get_free_proxy():
     query_result = mysql_cursor.fetchall()
     proxies = []
     for row in query_result:
-        logger.info(row[0])
         proxies.append(row[1])
     logger.info("get proxies with len %d " % len(proxies))
     mysql_cursor.close()
@@ -213,9 +232,11 @@ def get_twitter_api(level, use_proxy=False):
     elif level == 2:
         print("222")
         key_list = level2_keys
+        print("level2 keys len ", len(level2_keys))
     elif level == 3:
         print("333")
         key_list = level3_keys
+        print("level3 keys len ", len(level3_keys))
     logger.info("stop %d" % (len(key_list)-1))
     idx = 0
     if len(key_list) > 1:
@@ -235,6 +256,7 @@ def get_twitter_api(level, use_proxy=False):
     else:
         tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                             wait_on_rate_limit_notify=True)
+    logger.info("generated api")
 
     return (tw_api, key["ID"])
 
@@ -437,6 +459,9 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
+        if len(dm_contents) >= 1:
+            idx = random.randint(0, len(dm_contents)-1)
+            content = dm_contents[idx]
         tw_api, key_id = get_twitter_api(1)
         is_reply = False
         if 'api_id' in request_body.keys():
