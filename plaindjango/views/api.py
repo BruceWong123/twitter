@@ -119,7 +119,7 @@ def load_dmcontents():
 
     for row in query_result:
         dm_contents.append(row[1])
-    print("load dm content done ", len(dm_contents))
+    logger.info("load dm content done %d " % len(dm_contents))
     mysql_cursor.close()
     mysql_connection.close()
 
@@ -570,7 +570,9 @@ def humanize(request):
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 def refresh_dmcontents(request):
+    logger.info("into load cm contents")
     load_dmcontents()
+    logger.info("done load cm contents")
     return HttpResponse("ok")
 
 
