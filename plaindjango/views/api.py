@@ -389,7 +389,11 @@ def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
             logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
 
-            message = "Hi " + firstname + ",\n\n" + text
+            starters = ["Hi", "Hello", "Hey", "Good day", "Howdy", "Bonjour", "Hi-ya",
+                        "Good morning", "Good evening", "Hallo", "Hola", "Yo", "Morning"]
+            idx = random.randint(0, len(starters)-1)
+
+            message = starters[idx] + " " + firstname + ",\n\n" + text
             if is_reply:
                 logger.info("it is a reply")
                 message = text
