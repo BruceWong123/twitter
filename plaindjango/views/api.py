@@ -571,6 +571,7 @@ def humanize(request):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def refresh_dmcontents(request):
     logger.info("into load cm contents")
+    dm_contents.clear()
     load_dmcontents()
     logger.info("done load cm contents")
     return HttpResponse("ok")
