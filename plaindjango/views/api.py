@@ -569,6 +569,12 @@ def humanize(request):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
+def refresh_dmcontents(request):
+    load_dmcontents()
+    return HttpResponse("ok")
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
 def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
