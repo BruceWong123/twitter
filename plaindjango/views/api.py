@@ -604,11 +604,11 @@ def crm_manager(request):
         count = 0
         last_timestamp = 0
         for direct_message in direct_messages:
-            last_timestamp = max(
-                int(last_timestamp), int(direct_message.created_timestamp))
             logger.info("last time stamp %s " % last_timestamp)
             logger.info("message time stamp %s " %
                         direct_message.created_timestamp)
+            last_timestamp = max(
+                int(last_timestamp), int(direct_message.created_timestamp))
             if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                 logger.info(direct_message.created_timestamp)
                 logger.info("The type is : " + direct_message.type)
@@ -633,7 +633,8 @@ def crm_manager(request):
                 store_direct_message(
                     direct_message, sender_name, receiver_name)
                 count += 1
-            insert_last_reply(key['ID'], last_timestamp)
+        logger.info("final last time stamp %s " % last_timestamp)
+        insert_last_reply(key['ID'], last_timestamp)
         insert_stat_info(0, 0, count)
     logger.info("done CRM")
     return HttpResponse("ok")
