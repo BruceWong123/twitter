@@ -194,7 +194,7 @@ def get_twitter_api_by_id(api_id):
 
             tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                                 wait_on_rate_limit_notify=True)
-            return tw_api
+            return (tw_api, key["ID"])
     logger.info("could not find api by id !!!!!!!")
     return None
 
@@ -464,7 +464,7 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
-        if len(dm_contents) >= 1:
+        if len(dm_contents) >= 1 and request_body["isreply"] != True:
             idx = random.randint(0, len(dm_contents)-1)
             content = dm_contents[idx]
         tw_api, key_id = get_twitter_api(1)
