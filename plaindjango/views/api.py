@@ -588,7 +588,11 @@ def crm_manager(request):
         logger.info("into CRM")
     load_level1_keys()
     logger.info("level1 keys: %d" % len(level1_keys))
+    key_ids = []
     for key in level1_keys:
+        if key["ID"] in key_ids:
+            continue
+        key_ids.append(key["ID"])
         logger.info(key)
         db_users = mongo_db["messages"]
         auth = tweepy.OAuthHandler(
