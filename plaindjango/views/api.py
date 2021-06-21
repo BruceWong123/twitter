@@ -609,6 +609,10 @@ def crm_manager(request):
                         direct_message.created_timestamp)
             last_timestamp = max(
                 int(last_timestamp), int(direct_message.created_timestamp))
+            logger.info("last reply %s " % key["LAST"])
+            logger.info("recipient id %s " %
+                        direct_message.message_create['target']['recipient_id'])
+            logger.info("key id %s " % key["ID"])
             if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                 logger.info(direct_message.created_timestamp)
                 logger.info("The type is : " + direct_message.type)
