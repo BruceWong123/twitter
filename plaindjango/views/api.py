@@ -631,7 +631,8 @@ def crm_manager(request):
                 last_timestamp = max(int(last_timestamp), int(
                     direct_message.created_timestamp))
         logger.info("final last time stamp %s " % last_timestamp)
-        insert_last_reply(key['ID'], last_timestamp)
+        if last_timestamp != 0:
+            insert_last_reply(key['ID'], last_timestamp)
         insert_stat_info(0, 0, count)
     logger.info("done CRM")
     return HttpResponse("ok")
