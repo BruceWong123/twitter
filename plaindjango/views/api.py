@@ -507,7 +507,7 @@ def store_direct_message(direct_message, sender_name, receiver_name):
 
 def create_friendship_by_id(userID, tw_api, key_id):
     try:
-        tw_api.CreateFriendship(userID)
+        tw_api.create_friendship(userID)
         set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
