@@ -331,10 +331,17 @@ def store_followers(ids):
     logger.info("start inserting all into mongo")
     tw_api, key_id = get_twitter_api(2)
     db_users = mongo_db["users"]
+    seed_users = mongo_db["seedusers"]
     count = 0
     for i, uid in enumerate(ids):
         user = tw_api.get_user(uid)
         if user.followers_count > 100:
+            if user.followers_count > 5000:
+                logger.info("found see user %s " % user.screen_name)
+                key = {"id": user.id}
+                data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                        "follwers": user.followers_count, "location": user.location, "crawled": False}
+                seed_users.update(key, data, upsert=True)
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
                 logger.info(user.screen_name)
@@ -343,11 +350,12 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 db_users.update(key, data, upsert=True)
                 count += 1
-                if count % 50 == 0:
+                if count == 50:
+                    count = 0
                     insert_stat_info(50, 0, 0)
 
                 time.sleep(120)
-
+    insert_stat_info(count, 0, 0)
     logger.info("done inserting all into mongo")
 
 
