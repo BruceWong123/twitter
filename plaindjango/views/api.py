@@ -163,14 +163,14 @@ def load_level1_keys():
         key["LAST"] = row[10]  # date for last crawling of reply message
 
         level1_keys.append(key)
-    print("load level1 keys done ", len(level1_keys))
+    logger.info("load level1 keys done %d " % len(level1_keys))
     mysql_cursor.close()
     mysql_connection.close()
 
 
 load_level1_keys()
 load_level2_keys()
-load_level3_keys()
+# load_level3_keys()
 load_dmcontents()
 
 
@@ -656,6 +656,6 @@ def refresh_api(request):
         logger.info("start refresh api")
         load_level1_keys()
         load_level2_keys()
-        load_level3_keys()
+        # load_level3_keys()
         logger.info("done refresh api")
         return HttpResponse("ok")
