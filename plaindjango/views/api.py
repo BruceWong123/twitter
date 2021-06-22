@@ -610,42 +610,47 @@ def crm_manager(request):
         tw_api = tweepy.API(auth, wait_on_rate_limit=True,
                             wait_on_rate_limit_notify=True)
 
-        direct_messages = tw_api.list_direct_messages()
+        try:
+            direct_messages = tw_api.list_direct_messages()
 
-        logger.info("the number of messages is %d " % len(direct_messages))
-        count = 0
-        last_timestamp = 0
-        for direct_message in direct_messages:
-            if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
-                logger.info(direct_message.created_timestamp)
-                logger.info("The type is : " + direct_message.type)
-                logger.info("The id is : " + direct_message.id)
-                logger.info("The recipient_id is : " +
-                            direct_message.message_create['target']['recipient_id'])
-                logger.info("The sender_id is : " +
-                            direct_message.message_create['sender_id'])
-                logger.info(
-                    "The text is : " + str(direct_message.message_create['message_data']['text']))
-                sender_name = tw_api.get_user(
-                    direct_message.message_create['sender_id']).screen_name
-                receiver_name = tw_api.get_user(
-                    direct_message.message_create['target']['recipient_id']).screen_name
+            logger.info("the number of messages is %d " % len(direct_messages))
+            count = 0
+            last_timestamp = 0
+            for direct_message in direct_messages:
+                if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
+                    logger.info(direct_message.created_timestamp)
+                    logger.info("The type is : " + direct_message.type)
+                    logger.info("The id is : " + direct_message.id)
+                    logger.info("The recipient_id is : " +
+                                direct_message.message_create['target']['recipient_id'])
+                    logger.info("The sender_id is : " +
+                                direct_message.message_create['sender_id'])
+                    logger.info(
+                        "The text is : " + str(direct_message.message_create['message_data']['text']))
+                    sender_name = tw_api.get_user(
+                        direct_message.message_create['sender_id']).screen_name
+                    receiver_name = tw_api.get_user(
+                        direct_message.message_create['target']['recipient_id']).screen_name
 
-                logger.info("sender name %s %s " %
-                            (sender_name, receiver_name))
+                    logger.info("sender name %s %s " %
+                                (sender_name, receiver_name))
 
-                create_friendship_by_id(
-                    direct_message.message_create['sender_id'], tw_api, key["ID"])
-                logger.info("followed user by id")
-                store_direct_message(
-                    direct_message, sender_name, receiver_name)
-                count += 1
-                last_timestamp = max(int(last_timestamp), int(
-                    direct_message.created_timestamp))
-        logger.info("final last time stamp %s " % last_timestamp)
-        if last_timestamp != 0:
-            insert_last_reply(key['ID'], last_timestamp)
-        insert_stat_info(0, 0, count)
+                    create_friendship_by_id(
+                        direct_message.message_create['sender_id'], tw_api, key["ID"])
+                    logger.info("followed user by id")
+                    store_direct_message(
+                        direct_message, sender_name, receiver_name)
+                    count += 1
+                    last_timestamp = max(int(last_timestamp), int(
+                        direct_message.created_timestamp))
+            logger.info("final last time stamp %s " % last_timestamp)
+            if last_timestamp != 0:
+                insert_last_reply(key['ID'], last_timestamp)
+            insert_stat_info(0, 0, count)
+        except tweepy.TweepError as e:
+            print("Tweepy Error: {}".format(e))
+            logger.info("Tweepy Error: {}".format(e))
+            set_api_status(tw_api, format(e), key["ID"])
     logger.info("done CRM")
     return HttpResponse("ok")
 
