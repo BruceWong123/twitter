@@ -402,7 +402,7 @@ def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
                         "Good morning", "Good evening", "Hallo", "Hola", "Yo", "Morning"]
             idx = random.randint(0, len(starters)-1)
 
-            message = starters[idx] + " " + firstname + ",\n\n" + text
+            message = starters[idx] + " " + firstname + ", " + text
             if is_reply:
                 logger.info("it is a reply")
                 message = text
