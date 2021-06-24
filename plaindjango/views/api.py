@@ -564,6 +564,31 @@ def humanize_by_key(key):
         tw_api.retweet(ids[idx])
 
 
+def get_followers_count_by_id(id):
+
+    tw_api = get_twitter_api(2)
+    return tw_api.get_user(id).followers_count
+
+
+def update_followers(id):
+    logger.info("update followers for %s " % id)
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    follower_count = get_followers_count_by_id(id)
+
+    logger.info("the followers : %d " % follower_count)
+    sql = "Update asynctask_twitter_account Set followers = \"" + follower_count + "\" Where id = " + \
+        "\"" + id + "\""
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def humanize(request):
     if request.method == 'GET':
@@ -651,6 +676,7 @@ def crm_manager(request):
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
             set_api_status(tw_api, format(e), key["ID"])
+        update_followers(key["ID"])
     logger.info("done CRM")
     return HttpResponse("ok")
 
