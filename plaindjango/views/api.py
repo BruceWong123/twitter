@@ -566,7 +566,7 @@ def humanize_by_key(key):
 
 def get_followers_count_by_id(id):
 
-    tw_api = get_twitter_api(2)
+    tw_api, key_id = get_twitter_api(2)
     return tw_api.get_user(id).followers_count
 
 
