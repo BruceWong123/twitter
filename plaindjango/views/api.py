@@ -581,7 +581,7 @@ def update_followers(id):
     follower_count = get_followers_count_by_id(id)
 
     logger.info("the followers : %d " % follower_count)
-    sql = "Update asynctask_twitter_account Set followers = \"" + follower_count + "\" Where id = " + \
+    sql = "Update asynctask_twitter_account Set followers = \"" + str(follower_count) + "\" Where id = " + \
         "\"" + str(id) + "\""
     mysql_cursor.execute(sql)
 
