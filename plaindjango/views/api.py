@@ -571,6 +571,7 @@ def get_followers_count_by_id(id):
 
 
 def update_followers(id):
+    id = str(id)
     logger.info("update followers for %s " % id)
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
