@@ -581,7 +581,7 @@ def update_followers(id):
 
     logger.info("the followers : %d " % follower_count)
     sql = "Update asynctask_twitter_account Set followers = \"" + follower_count + "\" Where id = " + \
-        "\"" + id + "\""
+        "\"" + str(id) + "\""
     mysql_cursor.execute(sql)
 
     mysql_connection.commit()
