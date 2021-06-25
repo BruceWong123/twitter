@@ -354,7 +354,7 @@ def store_followers(ids):
                     count = 0
                     insert_stat_info(50, 0, 0)
 
-                time.sleep(120)
+                time.sleep(150)
     insert_stat_info(count, 0, 0)
     logger.info("done inserting all into mongo")
 
@@ -375,7 +375,7 @@ def get_followers(user_name):
             logger.info("get new page with ids of %d" % len(ids))
             print("get new page with ids of %d" % len(ids))
             store_followers(ids)
-            time.sleep(3000)
+            time.sleep(5000)
         set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
