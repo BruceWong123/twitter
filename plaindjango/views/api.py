@@ -354,7 +354,7 @@ def store_followers(ids):
                     count = 0
                     insert_stat_info(50, 0, 0)
 
-                time.sleep(150)
+                time.sleep(300)
     insert_stat_info(count, 0, 0)
     logger.info("done inserting all into mongo")
 
