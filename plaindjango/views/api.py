@@ -660,11 +660,11 @@ def crm_manager(request):
 
                     logger.info("sender name %s %s " %
                                 (sender_name, receiver_name))
-                    if not tw_api.exists_friendship(key["ID"], target_id=direct_message.message_create['sender_id']):
+                    if not tw_api.show_friendship(target_id=direct_message.message_create['sender_id']).following:
 
                         create_friendship_by_id(
                             direct_message.message_create['sender_id'], tw_api, key["ID"])
-                        logger.info("followed user by id")
+                    logger.info("followed user by id")
                     store_direct_message(
                         direct_message, sender_name, receiver_name)
                     count += 1
