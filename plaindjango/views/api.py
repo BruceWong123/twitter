@@ -681,6 +681,10 @@ def crm_manager(request):
             logger.info("Tweepy Error: {}".format(e))
             set_api_status(tw_api, format(e), key["ID"])
         update_followers(key["ID"])
+
+    load_level2_keys()
+    for key in level2_keys:
+        update_followers(key["ID"])
     logger.info("done CRM")
     return HttpResponse("ok")
 
