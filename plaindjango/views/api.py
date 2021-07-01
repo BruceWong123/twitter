@@ -411,7 +411,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 message = text
             else:
                 logger.info("it is a auto message")
-                logger.info("sent content id: %d " % content_id)
+                logger.info("sent content id: %s " % content_id)
                 users = mongo_db["users"]
                 users.update({"id": int(user["id"])}, {
                              "$set": {"content_id": content_id}}, upsert=True)
@@ -488,6 +488,7 @@ def send_direct_messages(request):
             idx = random.randint(0, len(dm_contents)-1)
             content = dm_contents[idx][0]
             content_id = dm_contents[idx][1]
+            logger.info("content_id  %s " % content_id)
         tw_api, key_id = get_twitter_api(1)
         is_reply = False
         if 'api_id' in request_body.keys():
