@@ -120,6 +120,7 @@ def load_dmcontents():
     for row in query_result:
         dm_contents.append((row[0], row[2]))
         logger.info(row[0])
+        logger.info(row[2])
     logger.info("load dm content done %d " % len(dm_contents))
     mysql_cursor.close()
     mysql_connection.close()
