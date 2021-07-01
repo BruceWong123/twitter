@@ -712,7 +712,7 @@ def crm_manager(request):
                     if sender_name in messages:
                         data = messages[sender_name]
                         content = str(
-                            direct_message.message_create['message_data']['text']) + "/n" + data["content"]
+                            direct_message.message_create['message_data']['text']) + "\n" + data["content"]
                         data["content"] = content
                     else:
                         data = dict()
