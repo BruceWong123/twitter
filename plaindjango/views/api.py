@@ -534,7 +534,7 @@ def store_direct_message_by_dict(messages):
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
     for key, value in messages.items():
-        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (value["messageid"], value["sender"],
                value["receiver"],  value["type"],
                value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"])
@@ -697,7 +697,7 @@ def crm_manager(request):
                                 (sender_name, receiver_name))
                     relation = tw_api.show_friendship(
                         target_id=direct_message.message_create['sender_id'])
-                    logger.info(relation[0])
+                    # logger.info(relation[0])
                     if not relation[0].following and not relation[0].following_requested:
                         create_friendship_by_id(
                             direct_message.message_create['sender_id'], tw_api, key["ID"])
@@ -735,6 +735,7 @@ def crm_manager(request):
                     last_timestamp = max(int(last_timestamp), int(
                         direct_message.created_timestamp))
             logger.info("final last time stamp %s " % last_timestamp)
+            logger.info(messages)
             store_direct_message_by_dict(messages)
             if last_timestamp != 0:
                 insert_last_reply(key['ID'], last_timestamp)
