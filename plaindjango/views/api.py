@@ -535,9 +535,9 @@ def store_direct_message_by_dict(messages):
 
     for key, value in messages.items():
         sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        val = (messages["messageid"], messages["sender"],
-               messages["receiver"],  messages["type"],
-               messages["content"],  messages["replied"],  messages["date"],  messages["sender_name"],  messages["receiver_name"], messages["reply"])
+        val = (value["messageid"], value["sender"],
+               value["receiver"],  value["type"],
+               value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"])
 
         mysql_cursor.execute(sql, val)
 
@@ -735,9 +735,10 @@ def crm_manager(request):
                     last_timestamp = max(int(last_timestamp), int(
                         direct_message.created_timestamp))
             logger.info("final last time stamp %s " % last_timestamp)
+            store_direct_message_by_dict(messages)
             if last_timestamp != 0:
                 insert_last_reply(key['ID'], last_timestamp)
-            store_direct_message_by_dict(messages)
+
             insert_stat_info(0, 0, count)
         except tweepy.TweepError as e:
             print("Tweepy Error: {}".format(e))
