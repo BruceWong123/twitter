@@ -527,6 +527,26 @@ def store_direct_message(direct_message, sender_name, receiver_name):
     mysql_connection.close()
 
 
+def store_direct_message_by_dict(messages):
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    for key, value in messages.items():
+        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        val = (messages["messageid"], messages["sender"],
+               messages["receiver"],  messages["type"],
+               messages["content"],  messages["replied"],  messages["date"],  messages["sender_name"],  messages["receiver_name"], messages["reply"])
+
+        mysql_cursor.execute(sql, val)
+
+        mysql_connection.commit()
+
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 def create_friendship_by_id(userID, tw_api, key_id):
     try:
         tw_api.create_friendship(userID)
@@ -656,6 +676,7 @@ def crm_manager(request):
             logger.info("the number of messages is %d " % len(direct_messages))
             count = 0
             last_timestamp = 0
+            messages = dict()
             for direct_message in direct_messages:
                 if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                     logger.info(direct_message.created_timestamp)
@@ -686,14 +707,37 @@ def crm_manager(request):
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}}, upsert=True)
 
-                    store_direct_message(
-                        direct_message, sender_name, receiver_name)
+                    # store_direct_message(
+                    #     direct_message, sender_name, receiver_name)
+                    if sender_name in messages:
+                        data = messages[sender_name]
+                        content = str(
+                            direct_message.message_create['message_data']['text']) + "/n" + data["content"]
+                        data["content"] = content
+                    else:
+                        data = dict()
+                        date = datetime.fromtimestamp(
+                            int(direct_message.created_timestamp)/1000)
+                        date_object = date.strftime('%Y-%m-%d %H:%M:%S')
+                        data["messageid"] = direct_message.id
+                        data["sender"] = direct_message.message_create['sender_id']
+                        data["receiver"] = direct_message.message_create['target']['recipient_id']
+                        data["type"] = direct_message.type
+                        data["content"] = str(
+                            direct_message.message_create['message_data']['text'])
+                        data["replied"] = "no"
+                        data["date"] = date_object
+                        data["sender_name"] = sender_name
+                        data["receiver_name"] = receiver_name
+                        data["reply"] = " "
+                        messages[sender_name] = data
                     count += 1
                     last_timestamp = max(int(last_timestamp), int(
                         direct_message.created_timestamp))
             logger.info("final last time stamp %s " % last_timestamp)
             if last_timestamp != 0:
                 insert_last_reply(key['ID'], last_timestamp)
+            store_direct_message_by_dict(messages)
             insert_stat_info(0, 0, count)
         except tweepy.TweepError as e:
             print("Tweepy Error: {}".format(e))
