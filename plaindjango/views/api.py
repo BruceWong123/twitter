@@ -410,6 +410,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 users = mongo_db["users"]
                 users.update({"id": int(user["id"])}, {
                              "$set": {"content_id": content_id}})
+                logger.info("sent content id: %d " % content_id)
 
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
