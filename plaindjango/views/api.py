@@ -408,10 +408,11 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 message = text
             else:
                 logger.info("it is a auto message")
+                logger.info("sent content id: %d " % content_id)
                 users = mongo_db["users"]
                 users.update({"id": int(user["id"])}, {
-                             "$set": {"content_id": content_id}})
-                logger.info("sent content id: %d " % content_id)
+                             "$set": {"content_id": content_id}}, upsert=True)
+                logger.info("insert done")
 
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
