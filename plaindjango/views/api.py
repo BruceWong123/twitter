@@ -118,7 +118,7 @@ def load_dmcontents():
     query_result = mysql_cursor.fetchall()
 
     for row in query_result:
-        dm_contents.append(row[0])
+        dm_contents.append({row[0], row[2]})
         logger.info(row[0])
     logger.info("load dm content done %d " % len(dm_contents))
     mysql_cursor.close()
@@ -385,7 +385,7 @@ def get_followers(user_name):
     print("done loading all followers")
 
 
-def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
+def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_id):
     logger.info("into direct message")
     logger.info("Set up Threading send direct message")
     logger.info('Number of current threads is %d', threading.active_count())
@@ -406,6 +406,11 @@ def send_direct_message(list_of_users, text, tw_api, is_reply, key_id):
             if is_reply:
                 logger.info("it is a reply")
                 message = text
+            else:
+                users = mongo_db["users"]
+                users.update({"id": int(user["id"])}, {
+                             "$set": {"content_id": content_id}})
+
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
@@ -472,9 +477,11 @@ def send_direct_messages(request):
         user_list = request_body["users"]
 
         content = request_body["content"]
+        content_id = -1
         if len(dm_contents) >= 1 and request_body["isreply"] != True:
             idx = random.randint(0, len(dm_contents)-1)
-            content = dm_contents[idx]
+            content = dm_contents[idx][0]
+            content_id = dm_contents[idx][1]
         tw_api, key_id = get_twitter_api(1)
         is_reply = False
         if 'api_id' in request_body.keys():
@@ -484,7 +491,7 @@ def send_direct_messages(request):
         logger.info(user_list)
         logger.info(content)
         t = threading.Thread(target=send_direct_message,
-                             args=(user_list, content, tw_api, is_reply, key_id))
+                             args=(user_list, content, content_id, tw_api, is_reply, key_id))
         t.start()
         logger.info("done DM")
         return HttpResponse("ok")
