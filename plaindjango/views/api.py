@@ -118,7 +118,7 @@ def load_dmcontents():
     query_result = mysql_cursor.fetchall()
 
     for row in query_result:
-        dm_contents.append({row[0], row[2]})
+        dm_contents.append((row[0], row[2]))
         logger.info(row[0])
     logger.info("load dm content done %d " % len(dm_contents))
     mysql_cursor.close()
