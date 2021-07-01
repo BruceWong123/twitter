@@ -407,6 +407,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 logger.info("it is a reply")
                 message = text
             else:
+                logger.info("it is a auto message")
                 users = mongo_db["users"]
                 users.update({"id": int(user["id"])}, {
                              "$set": {"content_id": content_id}})
