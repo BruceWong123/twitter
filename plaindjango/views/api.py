@@ -681,6 +681,11 @@ def crm_manager(request):
                         create_friendship_by_id(
                             direct_message.message_create['sender_id'], tw_api, key["ID"])
                     logger.info("followed user by id")
+
+                    users = mongo_db["users"]
+                    users.update({"id": int(direct_message.message_create['sender_id'])}, {
+                        "$set": {"replied": True}}, upsert=True)
+
                     store_direct_message(
                         direct_message, sender_name, receiver_name)
                     count += 1
