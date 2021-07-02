@@ -322,6 +322,7 @@ def record_content_replied(content_id):
     sent = 0
     replied = 0
     for row in query_result:
+        logger.info(row)
         sent = int(row[6])
         replied = int(row[7])
     logger.info("replied %d " % replied)
