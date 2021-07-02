@@ -776,9 +776,10 @@ def crm_manager(request):
                     for x in query_result:
                         if "replied" in x:
                             replied = x["replied"]
-                        content_id = x["content_id"]
+                        if "content_id" in x:
+                            content_id = x["content_id"]
 
-                    if not replied:
+                    if not replied and content_id != -1:
                         record_content_replied(content_id)
 
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
