@@ -307,6 +307,39 @@ def record_content_sent(content_id):
     mysql_connection.close()
 
 
+def record_content_replied(content_id):
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
+        "\"" + str(content_id) + "\""
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+    sent = 0
+    replied = 0
+    for row in query_result:
+        sent = row[4]
+        replied = row[5]
+
+    replied += 1
+    sql = "Update asynctask_campaign_content Set replied = " + \
+        str(replied) + " Where id = " + "\"" + str(content_id) + "\""
+    mysql_cursor.execute(sql)
+
+    ratio = round(replied / sent, 2)
+
+    sql = "Update asynctask_campaign_content Set ratio = \"" + \
+        str(ratio) + "\" Where id = " + "\"" + str(content_id) + "\""
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 def set_api_status(tw_api, error_message, key_id):
 
     mysql_connection = mysql.connect(
@@ -732,6 +765,19 @@ def crm_manager(request):
                     logger.info("followed user by id")
 
                     users = mongo_db["users"]
+
+                    replied = False
+                    content_id = -1
+
+                    query_result = users.find(
+                        {"id": int(direct_message.message_create['sender_id'])})
+                    for x in query_result:
+                        replied = x["replied"]
+                        content_id = x["content_id"]
+
+                    if not replied:
+                        record_content_replied(content_id)
+
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}}, upsert=True)
 
