@@ -281,6 +281,7 @@ print(
 
 
 def record_content_sent(content_id):
+    logger.info("into record content sent")
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -296,7 +297,7 @@ def record_content_sent(content_id):
     for row in query_result:
         sent = row[4]
         replied = row[5]
-
+    logger.info("sent %d " % sent)
     sent += 1
     sql = "Update asynctask_campaign_content Set sent = " + \
         str(sent) + " Where id = " + "\"" + str(content_id) + "\""
@@ -308,6 +309,7 @@ def record_content_sent(content_id):
 
 
 def record_content_replied(content_id):
+    logger.info("into record content replied")
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -323,14 +325,15 @@ def record_content_replied(content_id):
     for row in query_result:
         sent = row[4]
         replied = row[5]
-
+    logger.info("replied %d " % replied)
+    logger.info("sent %d " % sent)
     replied += 1
     sql = "Update asynctask_campaign_content Set replied = " + \
         str(replied) + " Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
 
     ratio = round(replied / sent, 2)
-
+    logger.info("ratio %s " % str(ratio))
     sql = "Update asynctask_campaign_content Set ratio = \"" + \
         str(ratio) + "\" Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
