@@ -281,7 +281,7 @@ print(
 
 
 def record_content_sent(content_id):
-    logger.info("into record content sent")
+    logger.info("into record content sent %s " % content_id)
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
@@ -295,6 +295,7 @@ def record_content_sent(content_id):
     sent = 0
     replied = 0
     for row in query_result:
+        logger.info(row)
         sent = row[4]
         replied = row[5]
     logger.info("sent %d " % sent)
