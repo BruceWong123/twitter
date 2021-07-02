@@ -331,12 +331,12 @@ def record_content_replied(content_id):
     sql = "Update asynctask_campaign_content Set replied = " + \
         str(replied) + " Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
-
-    ratio = round(replied / sent, 2)
-    logger.info("ratio %s " % str(ratio))
-    sql = "Update asynctask_campaign_content Set ratio = \"" + \
-        str(ratio) + "\" Where id = " + "\"" + str(content_id) + "\""
-    mysql_cursor.execute(sql)
+    if sent > 0:
+        ratio = round(replied / sent, 2)
+        logger.info("ratio %s " % str(ratio))
+        sql = "Update asynctask_campaign_content Set ratio = \"" + \
+            str(ratio) + "\" Where id = " + "\"" + str(content_id) + "\""
+        mysql_cursor.execute(sql)
 
     mysql_connection.commit()
     mysql_cursor.close()
