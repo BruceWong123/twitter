@@ -779,7 +779,10 @@ def crm_manager(request):
                             replied = x["replied"]
                         if "content_id" in x:
                             content_id = x["content_id"]
-
+                    logger.info("replied")
+                    logger.info(replied)
+                    logger.info("content id")
+                    logger.info(content_id)
                     if not replied and content_id != -1:
                         record_content_replied(content_id)
 
