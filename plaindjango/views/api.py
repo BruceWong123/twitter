@@ -295,7 +295,7 @@ def record_content_sent(content_id):
     sent = 0
     for row in query_result:
         logger.info(row)
-        sent = int(row[6])
+        sent = int(row[5])
     logger.info("sent %d " % sent)
     sent += 1
     sql = "Update asynctask_campaign_content Set sent = " + \
@@ -323,8 +323,8 @@ def record_content_replied(content_id):
     replied = 0
     for row in query_result:
         logger.info(row)
-        sent = int(row[6])
-        replied = int(row[7])
+        sent = int(row[5])
+        replied = int(row[6])
     logger.info("replied %d " % replied)
     logger.info("sent %d " % sent)
     replied += 1
