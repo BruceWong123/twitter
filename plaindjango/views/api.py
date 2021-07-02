@@ -774,7 +774,8 @@ def crm_manager(request):
                     query_result = users.find(
                         {"id": int(direct_message.message_create['sender_id'])})
                     for x in query_result:
-                        replied = x["replied"]
+                        if "replied" in x:
+                            replied = x["replied"]
                         content_id = x["content_id"]
 
                     if not replied:
