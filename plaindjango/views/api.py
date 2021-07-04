@@ -280,34 +280,7 @@ print(
 )
 
 
-def record_content_sent(content_id):
-    logger.info("into record content sent %s " % content_id)
-    mysql_connection = mysql.connect(
-        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
-    print("Connected to:", mysql_connection.get_server_info())
-    mysql_cursor = mysql_connection.cursor(buffered=True)
-
-    sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
-        "\"" + str(content_id) + "\""
-    mysql_cursor.execute(sql)
-
-    query_result = mysql_cursor.fetchall()
-    sent = 0
-    for row in query_result:
-        logger.info(row)
-        sent = int(row[6])
-    logger.info("sent %d " % sent)
-    sent += 1
-    sql = "Update asynctask_campaign_content Set sent = " + \
-        str(sent) + " Where id = " + "\"" + str(content_id) + "\""
-    mysql_cursor.execute(sql)
-
-    mysql_connection.commit()
-    mysql_cursor.close()
-    mysql_connection.close()
-
-
-def record_content_replied(content_id):
+def record_content_update(content_id, is_reply):
     logger.info("into record content replied")
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
@@ -327,7 +300,10 @@ def record_content_replied(content_id):
         replied = int(row[5])
     logger.info("replied %d " % replied)
     logger.info("sent %d " % sent)
-    replied += 1
+    if is_reply:
+        replied += 1
+    else:
+        sent += 1
     sql = "Update asynctask_campaign_content Set replied = " + \
         str(replied) + " Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
@@ -478,7 +454,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 users.update({"id": int(user["id"])}, {
                              "$set": {"content_id": content_id}}, upsert=True)
                 logger.info("insert done")
-                record_content_sent(content_id)
+                record_content_update(content_id, False)
 
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
@@ -783,7 +759,7 @@ def crm_manager(request):
                     logger.info("content id")
                     logger.info(content_id)
                     if not replied and content_id != -1:
-                        record_content_replied(content_id)
+                        record_content_update(content_id, True)
 
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}}, upsert=True)
