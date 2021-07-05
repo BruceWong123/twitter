@@ -282,6 +282,7 @@ print(
 
 def record_content_update(content_id, is_reply):
     logger.info("into record content replied")
+    logger.info(is_reply)
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
