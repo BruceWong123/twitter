@@ -302,10 +302,12 @@ def record_content_update(content_id, is_reply):
     logger.info("sent %d " % sent)
     if is_reply:
         replied += 1
+        sql = "Update asynctask_campaign_content Set replied = " + \
+            str(replied) + " Where id = " + "\"" + str(content_id) + "\""
     else:
         sent += 1
-    sql = "Update asynctask_campaign_content Set replied = " + \
-        str(replied) + " Where id = " + "\"" + str(content_id) + "\""
+        sql = "Update asynctask_campaign_content Set sent = " + \
+            str(sent) + " Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
     if sent > 0:
         ratio = round(replied / sent, 2)
