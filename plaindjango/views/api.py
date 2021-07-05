@@ -303,10 +303,12 @@ def record_content_update(content_id, is_reply):
     logger.info("before sent %d " % sent)
     if is_reply:
         replied += 1
+        logger.info("update replied with %d " % replied)
         sql = "Update asynctask_campaign_content Set replied = " + \
             str(replied) + " Where id = " + "\"" + str(content_id) + "\""
     else:
         sent += 1
+        logger.info("update sent with %d " % sent)
         sql = "Update asynctask_campaign_content Set sent = " + \
             str(sent) + " Where id = " + "\"" + str(content_id) + "\""
     mysql_cursor.execute(sql)
