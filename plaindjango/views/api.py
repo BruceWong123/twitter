@@ -280,7 +280,7 @@ print(
 )
 
 
-def record_content_update(content_id, is_reply):
+def record_content_update(table_name, id, is_reply):
     logger.info("into record content replied")
     logger.info(is_reply)
     mysql_connection = mysql.connect(
@@ -288,8 +288,8 @@ def record_content_update(content_id, is_reply):
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
-        "\"" + str(content_id) + "\""
+    sql = "SELECT * FROM " + table_name + " WHERE id = " + \
+        "\"" + str(id) + "\""
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -304,21 +304,21 @@ def record_content_update(content_id, is_reply):
     if is_reply:
         replied += 1
         logger.info("update replied with %d " % replied)
-        sql = "Update asynctask_campaign_content Set replied = " + \
-            str(replied) + " Where id = " + "\"" + str(content_id) + "\""
+        sql = "Update " + table_name + " Set replied = " + \
+            str(replied) + " Where id = " + "\"" + str(id) + "\""
     else:
         sent += 1
         logger.info("update sent with %d " % sent)
-        sql = "Update asynctask_campaign_content Set sent = " + \
-            str(sent) + " Where id = " + "\"" + str(content_id) + "\""
+        sql = "Update " + table_name + " Set sent = " + \
+            str(sent) + " Where id = " + "\"" + str(id) + "\""
     mysql_cursor.execute(sql)
     if sent > 0:
         ratio = round(replied / sent, 2)
         logger.info("after replied %d " % replied)
         logger.info("after sent %d " % sent)
         logger.info("ratio %s " % str(ratio))
-        sql = "Update asynctask_campaign_content Set ratio = \"" + \
-            str(ratio) + "\" Where id = " + "\"" + str(content_id) + "\""
+        sql = "Update " + table_name + " Set ratio = \"" + \
+            str(ratio) + "\" Where id = " + "\"" + str(id) + "\""
         mysql_cursor.execute(sql)
 
     mysql_connection.commit()
@@ -461,7 +461,10 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 users.update({"id": int(user["id"])}, {
                              "$set": {"content_id": content_id}}, upsert=True)
                 logger.info("insert done")
-                record_content_update(content_id, False)
+                record_content_update(
+                    "asynctask_campaign_content", content_id, False)
+                record_content_update(
+                    "asynctask_twitter_account", key_id, False)
 
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
@@ -766,7 +769,10 @@ def crm_manager(request):
                     logger.info("content id")
                     logger.info(content_id)
                     if not replied and content_id != -1:
-                        record_content_update(content_id, True)
+                        record_content_update(
+                            "asynctask_campaign_content", content_id, True)
+                        record_content_update(
+                            "asynctask_twitter_account", key["ID"], True)
 
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}}, upsert=True)
