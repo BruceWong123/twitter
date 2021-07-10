@@ -313,8 +313,7 @@ def record_content_update(table_name, sent_index, reply_index, id, is_reply):
             str(sent) + " Where id = " + "\"" + str(id) + "\""
     mysql_cursor.execute(sql)
     if sent > 0:
-        ratio = round(replied / sent, 2)
-        ratio *= 100
+        ratio = round((replied*100) / sent, 2)
         ratio_str = str(ratio) + "%"
         logger.info("after replied %d " % replied)
         logger.info("after sent %d " % sent)
