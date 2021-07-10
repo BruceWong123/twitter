@@ -280,7 +280,7 @@ print(
 )
 
 
-def record_content_update(table_name, id, is_reply):
+def record_content_update(table_name, sent_index, reply_index, id, is_reply):
     logger.info("into record content replied")
     logger.info(is_reply)
     mysql_connection = mysql.connect(
@@ -297,8 +297,8 @@ def record_content_update(table_name, id, is_reply):
     replied = 0
     for row in query_result:
         logger.info(row)
-        sent = int(row[6])
-        replied = int(row[5])
+        sent = int(row[sent_index])
+        replied = int(row[reply_index])
     logger.info("before replied %d " % replied)
     logger.info("before sent %d " % sent)
     if is_reply:
@@ -464,9 +464,9 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                              "$set": {"content_id": content_id}}, upsert=True)
                 logger.info("insert done")
                 record_content_update(
-                    "asynctask_campaign_content", content_id, False)
+                    "asynctask_campaign_content", 6, 5, content_id, False)
                 record_content_update(
-                    "asynctask_twitter_account", key_id, False)
+                    "asynctask_twitter_account", 10, 9, key_id, False)
 
             direct_message = tw_api.send_direct_message(
                 user["id"], message)
@@ -772,9 +772,9 @@ def crm_manager(request):
                     logger.info(content_id)
                     if not replied and content_id != -1:
                         record_content_update(
-                            "asynctask_campaign_content", content_id, True)
+                            "asynctask_campaign_content", 6, 5, content_id, True)
                         record_content_update(
-                            "asynctask_twitter_account", key["ID"], True)
+                            "asynctask_twitter_account", 10, 9, key["ID"], True)
 
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}}, upsert=True)
