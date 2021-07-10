@@ -314,11 +314,13 @@ def record_content_update(table_name, id, is_reply):
     mysql_cursor.execute(sql)
     if sent > 0:
         ratio = round(replied / sent, 2)
+        ratio *= 100
+        ratio_str = str(ratio) + "%"
         logger.info("after replied %d " % replied)
         logger.info("after sent %d " % sent)
-        logger.info("ratio %s " % str(ratio))
+        logger.info("ratio %s " % str(ratio_str))
         sql = "Update " + table_name + " Set ratio = \"" + \
-            str(ratio) + "\" Where id = " + "\"" + str(id) + "\""
+            str(ratio_str) + "\" Where id = " + "\"" + str(id) + "\""
         mysql_cursor.execute(sql)
 
     mysql_connection.commit()
