@@ -20,6 +20,10 @@ level3_keys = []
 level2_keys = []
 level1_keys = []
 
+level1_index = 0
+level2_index = 0
+level3_index = 0
+
 dm_contents = []
 
 HOST = "170.106.188.105"  # or "domain.com"
@@ -227,24 +231,34 @@ def get_free_proxy():
 def get_twitter_api(level, use_proxy=False):
     logger.info("level %d " % level)
     key_list = []
+    key_index = 0
+    global level1_index
+    global level2_index
+    global level3_index
     if level == 1:
         print("111")
         key_list = level1_keys
+        key_index = level1_index
+        level1_index += 1
+        level1_index %= len(level1_keys)
         print("level1 keys len ", len(level1_keys))
     elif level == 2:
         print("222")
         key_list = level2_keys
+        key_index = level2_index
+        level2_index += 1
+        level2_index %= len(level2_keys)
         print("level2 keys len ", len(level2_keys))
     elif level == 3:
         print("333")
         key_list = level3_keys
+        key_index = level3_index
+        level3_index += 1
+        level3_index %= len(level3_keys)
         print("level3 keys len ", len(level3_keys))
-    logger.info("stop %d" % (len(key_list)-1))
-    idx = 0
-    if len(key_list) > 1:
-        idx = random.randint(0, len(key_list)-1)
-    logger.info("get random index %d", idx)
-    key = key_list[idx]
+
+    logger.info("get random index %d", key_index)
+    key = key_list[key_index]
     auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
     auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
