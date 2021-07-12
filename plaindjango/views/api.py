@@ -295,7 +295,7 @@ print(
 
 
 def record_content_update(table_name, sent_index, reply_index, id, is_reply):
-    logger.info("into record content replied")
+    logger.info("into record content replied %s " % table_name)
     logger.info(is_reply)
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
