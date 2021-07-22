@@ -481,8 +481,8 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
             logger.info("send dm to %s " % user['name'])
             firstname = user["name"].split(' ')[0]
 
-            starters = ["Hi", "Hello", "Hey", "Good day", "Howdy", "Bonjour", "Hi-ya",
-                        "Good morning", "Good evening", "Hallo", "Hola", "Yo", "Morning"]
+            starters = ["Hi", "Hello", "Hey", "Good morning",
+                        "Good evening", "Good afternoon"]
             idx = random.randint(0, len(starters)-1)
 
             message = starters[idx] + " " + firstname + ", " + text
