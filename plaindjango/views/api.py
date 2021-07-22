@@ -173,6 +173,25 @@ def load_level1_keys():
     mysql_connection.close()
 
 
+def refresh_followers():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_api_key"
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        logger.info("update followers for %s " % str(row[7]))
+        update_followers(row[7])
+
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 load_level1_keys()
 load_level2_keys()
 # load_level3_keys()
@@ -847,5 +866,15 @@ def refresh_api(request):
         load_level1_keys()
         load_level2_keys()
         # load_level3_keys()
+
         logger.info("done refresh api")
+
+        logger.info("into load cm contents")
+        dm_contents.clear()
+        load_dmcontents()
+        logger.info("done load cm contents")
+
+        logger.info("into refresh followers")
+        refresh_followers()
+        logger.info("done refresh followers")
         return HttpResponse("ok")
