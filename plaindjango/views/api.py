@@ -179,7 +179,7 @@ def refresh_followers():
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "SELECT * FROM asynctask_api_key"
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '1'"
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
