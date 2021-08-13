@@ -185,6 +185,7 @@ def refresh_followers():
     query_result = mysql_cursor.fetchall()
 
     for row in query_result:
+        logger.info("user name is : %s " % str(row[9]))
         logger.info("update followers for %s " % str(row[7]))
         update_followers(row[7])
 
