@@ -686,6 +686,7 @@ def humanize_by_key(key):
 def get_followers_count_by_id(id):
 
     tw_api, key_id = get_twitter_api(2)
+    followers = 0
     try:
         followers = tw_api.get_user(id).followers_count
     except tweepy.TweepError as e:
