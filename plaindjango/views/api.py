@@ -685,7 +685,13 @@ def humanize_by_key(key):
 def get_followers_count_by_id(id):
 
     tw_api, key_id = get_twitter_api(2)
-    return tw_api.get_user(id).followers_count
+    try:
+        followers = tw_api.get_user(id).followers_count
+    except tweepy.TweepError as e:
+        print("Tweepy Error: {}".format(e))
+        logger.info("Tweepy Error: {}".format(e))
+        set_api_status(tw_api, format(e), key_id)
+    return followers
 
 
 def update_followers(id):
@@ -803,7 +809,7 @@ def crm_manager(request):
                     logger.info(replied)
                     logger.info("content id")
                     logger.info(content_id)
-                    if not replied and content_id != -1:
+                    if not replied and content_id != -1:  # first time reply
                         record_content_update(
                             "asynctask_campaign_content", 6, 5, content_id, True)
                         record_content_update(
@@ -852,9 +858,9 @@ def crm_manager(request):
             set_api_status(tw_api, format(e), key["ID"])
         update_followers(key["ID"])
 
-    load_level2_keys()
-    for key in level2_keys:
-        update_followers(key["ID"])
+    # load_level2_keys()
+    # for key in level2_keys:
+    #     update_followers(key["ID"])
     logger.info("done CRM")
     return HttpResponse("ok")
 
@@ -875,6 +881,7 @@ def refresh_api(request):
         logger.info("done load cm contents")
 
         logger.info("into refresh followers")
+
         refresh_followers()
         logger.info("done refresh followers")
         return HttpResponse("ok")
