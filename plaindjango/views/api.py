@@ -532,7 +532,8 @@ def get_id_by_name(request, user_name):
         except tweepy.TweepError as e:
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
-            set_api_status(tw_api, format(e), key_id)
+            error_message = "get_id_by_name " + format(e)
+            set_api_status(tw_api, error_message, key_id)
             return HttpResponse(str(format(e)))
 
 
@@ -639,7 +640,8 @@ def create_friendship_by_id(userID, tw_api, key_id):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        set_api_status(tw_api, format(e), key_id)
+        error_message = "create_friendship_by_id" + format(e)
+        set_api_status(tw_api, error_message, key_id)
 
 
 def get_trends():
@@ -692,7 +694,8 @@ def get_followers_count_by_id(id):
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
-        set_api_status(tw_api, format(e), key_id)
+        error_message = "get_followers_count_by_id" + format(e)
+        set_api_status(tw_api, error_message, key_id)
     return followers
 
 
