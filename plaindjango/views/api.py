@@ -620,10 +620,10 @@ def store_direct_message_by_dict(messages):
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
     for key, value in messages.items():
-        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (value["messageid"], value["sender"],
                value["receiver"],  value["type"],
-               value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"])
+               value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"], value["followed"], value["receiver_desc"])
 
         mysql_cursor.execute(sql, val)
 
@@ -719,6 +719,29 @@ def update_followers(id):
     mysql_connection.close()
 
 
+def get_desc_by_id(user_id):
+
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_twitter_account WHERE id = " + \
+        "\"" + str(user_id) + "\""
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+    result = ""
+    for row in query_result:
+        result = row[3]
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+    return result
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def humanize(request):
     if request.method == 'GET':
@@ -783,19 +806,22 @@ def crm_manager(request):
                                 direct_message.message_create['sender_id'])
                     logger.info(
                         "The text is : " + str(direct_message.message_create['message_data']['text']))
+                    receiver_id = direct_message.message_create['target']['recipient_id']
                     sender_name = tw_api.get_user(
                         direct_message.message_create['sender_id']).screen_name
-                    receiver_name = tw_api.get_user(
-                        direct_message.message_create['target']['recipient_id']).screen_name
-
+                    receiver_name = tw_api.get_user(receiver_id).screen_name
+                    receiver_desc = get_desc_by_id(receiver_id)
                     logger.info("sender name %s %s " %
                                 (sender_name, receiver_name))
                     relation = tw_api.show_friendship(
                         target_id=direct_message.message_create['sender_id'])
                     # logger.info(relation[0])
+                    follwed = "False"
                     if not relation[0].following and not relation[0].following_requested:
                         create_friendship_by_id(
                             direct_message.message_create['sender_id'], tw_api, key["ID"])
+                    else:
+                        follwed = "True"
                     logger.info("followed user by id")
 
                     users = mongo_db["users"]
@@ -845,7 +871,10 @@ def crm_manager(request):
                         data["date"] = date_object
                         data["sender_name"] = sender_name
                         data["receiver_name"] = receiver_name
+                        data["receiver_desc"] = receiver_desc
                         data["reply"] = " "
+                        data["followed"] = follwed
+
                         messages[sender_name] = data
                         count += 1
                     last_timestamp = max(int(last_timestamp), int(
