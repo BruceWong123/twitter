@@ -430,7 +430,11 @@ def store_followers(ids):
                 logger.info(user.screen_name)
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "location": user.location, "dmed": False}
+                        "follwers": user.followers_count, "location": user.location, "dmed": False,
+                        "description": user.description, "url": user.url, "friends_count": user.friends_count,
+                        "created_at": user.created_at, "favourites_count": user.favourites_count,
+                        "utc_offset": user.utc_offset, "lang": user.lang, "status": user.status,
+                        "notifications": user.notifications, "protected": user.protected}
                 db_users.update(key, data, upsert=True)
                 count += 1
                 if count == 50:
