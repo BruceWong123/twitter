@@ -624,7 +624,7 @@ def store_direct_message_by_dict(messages):
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
     for key, value in messages.items():
-        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (value["messageid"], value["sender"],
                value["receiver"],  value["type"],
                value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"], value["followed"], value["receiver_desc"])
