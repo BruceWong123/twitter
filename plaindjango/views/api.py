@@ -45,8 +45,8 @@ def insert_stat_info(user, dm, reply):
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    sql = "INSERT INTO asynctask_stat (new_user, dm, reply, date) VALUES (%s, %s,%s,%s)"
-    val = (user, dm, reply, datetime.now())
+    sql = "INSERT INTO asynctask_stat (new_user, dm, reply, date, new_account) VALUES (%s, %s,%s,%s,%s)"
+    val = (user, dm, reply, datetime.now(), 0)
     logger.info(val)
     mysql_cursor.execute(sql, val)
     mysql_connection.commit()
