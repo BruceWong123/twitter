@@ -784,7 +784,8 @@ def get_ip(request):
 
         v1 = client.CoreV1Api()
         logger.info("Listing pods with their IPs:")
-        ret = v1.list_pod_for_all_namespaces(label_selector='app=my-service')
+        ret = v1.list_pod_for_all_namespaces(
+            label_selector='app=twitter-service')
         for i in ret.items:
             logger.info("%s\t%s\t%s" %
                         (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
