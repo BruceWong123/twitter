@@ -13,6 +13,10 @@ import sys
 import mysql.connector as mysql
 import random
 from datetime import datetime
+
+from kubernetes import client, config
+
+
 logger = logging.getLogger('django')
 
 
@@ -770,6 +774,20 @@ def refresh_dmcontents(request):
     load_dmcontents()
     logger.info("done load cm contents")
     return HttpResponse("ok")
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
+def get_ip(request):
+    if request.method == 'GET':
+
+        config.load_incluster_config()
+
+        v1 = client.CoreV1Api()
+        logger.info("Listing pods with their IPs:")
+        ret = v1.list_pod_for_all_namespaces(label_selector='app=my-service')
+        for i in ret.items:
+            logger.info("%s\t%s\t%s" %
+                        (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
