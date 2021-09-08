@@ -13,7 +13,7 @@ import sys
 import mysql.connector as mysql
 import random
 from datetime import datetime
-
+import os
 from kubernetes import client, config
 
 
@@ -783,12 +783,9 @@ def get_ip(request):
         config.load_incluster_config()
 
         v1 = client.CoreV1Api()
-        logger.info("Listing pods with their IPs:")
-        ret = v1.list_pod_for_all_namespaces(
-            label_selector='app=twitter-service')
-        for i in ret.items:
-            logger.info("%s\t%s\t%s" %
-                        (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
+        for address in v1.read_node(os.environ['HOSTNAME']).status.addresses:
+            if address.type == 'ExternalIP':
+                logger.info(address.address)
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
