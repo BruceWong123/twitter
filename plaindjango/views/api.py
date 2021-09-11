@@ -439,8 +439,8 @@ def store_followers(ids):
                 #     data["utc_offset"] = user.utc_offset
                 # if user.favourites_count != None:
                 #     data["favourites_count"] = user.favourites_count
-                # if user.lang != None:
-                #     data["lang"] = user.lang
+                if user.lang != None:
+                    data["lang"] = user.lang
                 # if user.status != None:
                 #     data["status"] = user.status
                 # if user.notifications != None:
