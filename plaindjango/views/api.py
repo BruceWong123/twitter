@@ -432,34 +432,29 @@ def store_followers(ids):
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
                 logger.info("found normal user %s " % user.screen_name)
-                logger.info(user.followers_count)
-                logger.info(user.name)
                 key = {"id": user.id}
-                logger.info(user.description)
-                logger.info(user.utc_offset)
-                logger.info(user.location)
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
-                if user.utc_offset != None:
-                    data["utc_offset"] = user.utc_offset
-                if user.favourites_count != None:
-                    data["favourites_count"] = user.favourites_count
-                if user.lang != None:
-                    data["lang"] = user.lang
-                if user.status != None:
-                    data["status"] = user.status
-                if user.notifications != None:
-                    data["notifications"] = user.notifications
-                if user.protected != None:
-                    data["protected"] = user.protected
-                if user.created_at != None:
-                    data["created_at"] = user.created_at
-                if user.description != None:
-                    data["description"] = user.description
-                if user.url != None:
-                    data["url"] = user.url
-                if user.friends_count != None:
-                    data["friends_count"] = user.friends_count
+                # if user.utc_offset != None:
+                #     data["utc_offset"] = user.utc_offset
+                # if user.favourites_count != None:
+                #     data["favourites_count"] = user.favourites_count
+                # if user.lang != None:
+                #     data["lang"] = user.lang
+                # if user.status != None:
+                #     data["status"] = user.status
+                # if user.notifications != None:
+                #     data["notifications"] = user.notifications
+                # if user.protected != None:
+                #     data["protected"] = user.protected
+                # if user.created_at != None:
+                #     data["created_at"] = user.created_at
+                # if user.description != None:
+                #     data["description"] = user.description
+                # if user.url != None:
+                #     data["url"] = user.url
+                # if user.friends_count != None:
+                #     data["friends_count"] = user.friends_count
 
                 logger.info("collected data")
                 logger.info(data)
