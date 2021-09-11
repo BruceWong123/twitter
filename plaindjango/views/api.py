@@ -449,8 +449,8 @@ def store_followers(ids):
                 #     data["protected"] = user.protected
                 # if user.created_at != None:
                 #     data["created_at"] = user.created_at
-                # if user.description != None:
-                #     data["description"] = user.description
+                if user.description != None:
+                    data["description"] = user.description
                 # if user.url != None:
                 #     data["url"] = user.url
                 # if user.friends_count != None:
