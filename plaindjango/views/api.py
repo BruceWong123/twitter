@@ -437,12 +437,14 @@ def store_followers(ids):
                 key = {"id": user.id}
                 logger.info(user.description)
                 logger.info(user.utc_offset)
+                logger.info(user.location)
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "dmed": False,
                         "description": user.description, "url": user.url, "friends_count": user.friends_count,
                         "created_at": user.created_at, "favourites_count": user.favourites_count,
                         "utc_offset": user.utc_offset, "lang": user.lang, "status": user.status,
                         "notifications": user.notifications, "protected": user.protected}
+                logger.info("collected data")
                 logger.info(data)
                 db_users.update(key, data, upsert=True)
                 count += 1
