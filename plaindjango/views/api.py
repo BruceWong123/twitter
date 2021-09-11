@@ -437,12 +437,12 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False}
                 # if user.utc_offset != None:
                 #     data["utc_offset"] = user.utc_offset
-                if user.favourites_count != None:
-                    data["favourites_count"] = user.favourites_count
+                # if user.favourites_count != None:
+                #     data["favourites_count"] = user.favourites_count
                 if user.lang != None:
                     data["lang"] = user.lang
-                if user.status != None:
-                    data["status"] = user.status
+                # if user.status != None:
+                #     data["status"] = user.status
                 # if user.notifications != None:
                 #     data["notifications"] = user.notifications
                 # if user.protected != None:
