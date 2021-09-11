@@ -433,6 +433,10 @@ def store_followers(ids):
             if relation[0].can_dm:
                 logger.info("found normal user %s " % user.screen_name)
                 key = {"id": user.id}
+                logger.info(user)
+                logger.info(user.description)
+                logger.info(user.utc_offset)
+                logger.info(user.protected)
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "dmed": False,
                         "description": user.description, "url": user.url, "friends_count": user.friends_count,
