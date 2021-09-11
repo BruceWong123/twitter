@@ -432,11 +432,11 @@ def store_followers(ids):
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
                 logger.info("found normal user %s " % user.screen_name)
+                logger.info(user.followers_count)
+                logger.info(user.name)
                 key = {"id": user.id}
-                logger.info(user)
                 logger.info(user.description)
                 logger.info(user.utc_offset)
-                logger.info(user.protected)
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "dmed": False,
                         "description": user.description, "url": user.url, "friends_count": user.friends_count,
