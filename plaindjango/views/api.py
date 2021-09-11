@@ -442,7 +442,7 @@ def store_followers(ids):
                         "follwers": user.followers_count, "location": user.location, "dmed": False,
                         "description": user.description, "url": user.url, "friends_count": user.friends_count,
                         "created_at": user.created_at, "favourites_count": user.favourites_count,
-                        "utc_offset": user.utc_offset, "lang": user.lang, "status": user.status,
+                        "lang": user.lang, "status": user.status,
                         "notifications": user.notifications, "protected": user.protected}
                 logger.info("collected data")
                 logger.info(data)
