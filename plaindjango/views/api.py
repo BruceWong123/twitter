@@ -439,11 +439,28 @@ def store_followers(ids):
                 logger.info(user.utc_offset)
                 logger.info(user.location)
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "location": user.location, "dmed": False,
-                        "description": user.description, "url": user.url, "friends_count": user.friends_count,
-                        "created_at": user.created_at, "favourites_count": user.favourites_count,
-                        "lang": user.lang, "status": user.status,
-                        "notifications": user.notifications, "protected": user.protected}
+                        "follwers": user.followers_count, "location": user.location, "dmed": False}
+                if user.utc_offset != None:
+                    data["utc_offset"] = user.utc_offset
+                if user.favourites_count != None:
+                    data["favourites_count"] = user.favourites_count
+                if user.lang != None:
+                    data["lang"] = user.lang
+                if user.status != None:
+                    data["status"] = user.status
+                if user.notifications != None:
+                    data["notifications"] = user.notifications
+                if user.protected != None:
+                    data["protected"] = user.protected
+                if user.created_at != None:
+                    data["created_at"] = user.created_at
+                if user.description != None:
+                    data["description"] = user.description
+                if user.url != None:
+                    data["url"] = user.url
+                if user.friends_count != None:
+                    data["friends_count"] = user.friends_count
+
                 logger.info("collected data")
                 logger.info(data)
                 db_users.update(key, data, upsert=True)
