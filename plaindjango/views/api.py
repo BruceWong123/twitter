@@ -451,10 +451,10 @@ def store_followers(ids):
                 #     data["created_at"] = user.created_at
                 if user.description != None:
                     data["description"] = user.description
-                # if user.url != None:
-                #     data["url"] = user.url
-                # if user.friends_count != None:
-                #     data["friends_count"] = user.friends_count
+                if user.url != None:
+                    data["url"] = user.url
+                if user.friends_count != None:
+                    data["friends_count"] = user.friends_count
 
                 logger.info("collected data")
                 logger.info(data)
