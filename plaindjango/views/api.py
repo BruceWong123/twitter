@@ -441,6 +441,7 @@ def store_followers(ids):
                         "notifications": user.notifications, "protected": user.protected}
                 db_users.update(key, data, upsert=True)
                 count += 1
+                logger.info("found normal user count %d " % count)
                 if count == 50:
                     count = 0
                     insert_stat_info(50, 0, 0)
