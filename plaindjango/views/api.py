@@ -439,6 +439,7 @@ def store_followers(ids):
                         "created_at": user.created_at, "favourites_count": user.favourites_count,
                         "utc_offset": user.utc_offset, "lang": user.lang, "status": user.status,
                         "notifications": user.notifications, "protected": user.protected}
+                logger.info(data)
                 db_users.update(key, data, upsert=True)
                 count += 1
                 logger.info("found normal user count %d " % count)
