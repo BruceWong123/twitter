@@ -230,7 +230,7 @@ def refresh_followers():
 load_level1_keys()
 load_level2_keys()
 # load_level3_keys()
-load_dmcontents()
+# load_dmcontents()
 
 
 def get_api_by_key(key):
