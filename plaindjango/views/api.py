@@ -96,7 +96,8 @@ def load_level2_keys():
 
     ip = get('https://api.ipify.org').text
     logger.info('My public IP address is: {}'.format(ip))
-    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + ip + '\''
+    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + str(ip) + '\''
+    logger.info(sql)
     mysql_cursor.execute(sql)
     server_id = -1
     query_result = mysql_cursor.fetchall()
@@ -106,6 +107,7 @@ def load_level2_keys():
 
     sql = "SELECT * FROM asynctask_api_key WHERE level = '2' and server_id = " + \
         '\'' + str(server_id) + '\''
+    logger.info(sql)
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -172,6 +174,7 @@ def load_level1_keys():
     logger.info('My public IP address is: {}'.format(ip))
 
     sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + str(ip) + '\''
+    logger.info(sql)
 
     logger.info(sql)
     mysql_cursor.execute(sql)
@@ -184,6 +187,7 @@ def load_level1_keys():
 
     sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and server_id = " + \
         '\'' + str(server_id) + '\''
+    logger.info(sql)
     mysql_cursor.execute(sql)
     query_result = mysql_cursor.fetchall()
 
