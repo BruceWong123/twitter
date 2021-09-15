@@ -290,6 +290,8 @@ def get_twitter_api(level, use_proxy=False):
     global level3_index
     if level == 1:
         print("111")
+        if len(level1_keys) == 0:
+            return (None, None)
         key_list = level1_keys
         key_index = level1_index
         level1_index += 1
@@ -299,6 +301,8 @@ def get_twitter_api(level, use_proxy=False):
         print("222")
         key_list = level2_keys
         key_index = level2_index
+        if len(level2_keys) == 0:
+            return (None, None)
         level2_index += 1
         level2_index %= len(level2_keys)
         print("level2 keys len ", len(level2_keys))
@@ -306,6 +310,8 @@ def get_twitter_api(level, use_proxy=False):
         print("333")
         key_list = level3_keys
         key_index = level3_index
+        if len(level3_keys) == 0:
+            return (None, None)
         level3_index += 1
         level3_index %= len(level3_keys)
         print("level3 keys len ", len(level3_keys))
@@ -423,6 +429,8 @@ def get_seed_users(key_word):
     logger.info("get seed users on %s " % key_word)
     db_users = mongo_db["seedusers"]
     tw_api, key_id = get_twitter_api(3)
+    if tw_api == None:
+        return
     try:
         count = 0
         for page in tweepy.Cursor(tw_api.search_users, key_word).pages():
@@ -446,6 +454,8 @@ def get_seed_users(key_word):
 def store_followers(ids):
     logger.info("start inserting all into mongo")
     tw_api, key_id = get_twitter_api(2)
+    if tw_api == None:
+        return
     db_users = mongo_db["users"]
     seed_users = mongo_db["seedusers"]
     count = 0
@@ -505,7 +515,8 @@ def get_followers(user_name):
     logger.info('Number of current threads is %d', threading.active_count())
     logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     tw_api, key_id = get_twitter_api(2)
-
+    if tw_api == None:
+        return
     count = 0
     try:
         logger.info("into get page")
@@ -579,6 +590,8 @@ def get_id_by_name(request, user_name):
         user_name = user_name.strip()
         try:
             tw_api, key_id = get_twitter_api(2, False)
+            if tw_api == None:
+                HttpResponse("api key empty")
             user = tw_api.get_user(user_name)
 
             # fetching the ID
@@ -633,6 +646,8 @@ def send_direct_messages(request):
             content_id = dm_contents[idx][1]
             logger.info("content_id  %s " % content_id)
         tw_api, key_id = get_twitter_api(1)
+        if tw_api == None:
+            return HttpResponse("api keys empty")
         is_reply = False
         if 'api_id' in request_body.keys():
             logger.info("found api id in request")
@@ -745,6 +760,8 @@ def humanize_by_key(key):
 def get_followers_count_by_id(id):
 
     tw_api, key_id = get_twitter_api(2)
+    if tw_api == None:
+        return 0
     followers = 0
     try:
         followers = tw_api.get_user(id).followers_count
@@ -838,6 +855,8 @@ def crm_manager(request):
     if request.method == 'GET':
         logger.info("into CRM")
     load_level1_keys()
+    if len(level1_keys) == 0:
+        return HttpResponse(" level1 keys empty")
     logger.info("level1 keys: %d" % len(level1_keys))
     key_ids = []
     for key in level1_keys:
