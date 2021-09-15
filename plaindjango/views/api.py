@@ -800,6 +800,7 @@ def get_ip(request):
     if request.method == 'GET':
         ip = get('https://api.ipify.org').text
         logger.info('My public IP address is: {}'.format(ip))
+        return HttpResponse(str(ip))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
