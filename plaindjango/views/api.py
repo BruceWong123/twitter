@@ -102,7 +102,7 @@ def load_level2_keys():
     server_id = -1
     query_result = mysql_cursor.fetchall()
     for row in query_result:
-        server_id = row[0]
+        server_id = row[3]
         logger.info("server id %s " % server_id)
 
     sql = "SELECT * FROM asynctask_api_key WHERE level = '2' and server_id = " + \
@@ -183,7 +183,7 @@ def load_level1_keys():
     query_result = mysql_cursor.fetchall()
     for row in query_result:
         logger.info("query result")
-        server_id = row[0]
+        server_id = row[3]
         logger.info("server id %s " % server_id)
 
     sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and server_id = " + \
