@@ -93,7 +93,7 @@ def server_request():
     request_count = 0
     query_result = mysql_cursor.fetchall()
     for row in query_result:
-        request_count = int(row[5])
+        request_count = int(row[6])
     request_count = request_count + 1
 
     sql = "Update asynctask_server Set requests = \"" + \
