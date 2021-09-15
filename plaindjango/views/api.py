@@ -60,6 +60,52 @@ def insert_stat_info(user, dm, reply):
     mysql_connection.close()
 
 
+def server_account(account):
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    ip = get('https://api.ipify.org').text
+    logger.info('My public IP address is: {}'.format(ip))
+
+    sql = "Update asynctask_server Set requests = \"" + \
+        str(account) + "\" Where ip = " + '\'' + str(ip) + '\''
+
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
+def server_request():
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    ip = get('https://api.ipify.org').text
+    logger.info('My public IP address is: {}'.format(ip))
+    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + str(ip) + '\''
+    logger.info(sql)
+    mysql_cursor.execute(sql)
+    request_count = 0
+    query_result = mysql_cursor.fetchall()
+    for row in query_result:
+        request_count = int(row[5])
+    request_count = request_count + 1
+
+    sql = "Update asynctask_server Set requests = \"" + \
+        str(request_count) + "\" Where ip = " + '\'' + str(ip) + '\''
+
+    mysql_cursor.execute(sql)
+
+    mysql_connection.commit()
+    mysql_cursor.close()
+    mysql_connection.close()
+
+
 def load_level3_keys():
     level3_keys.clear()
     mysql_connection = mysql.connect(
@@ -204,6 +250,8 @@ def load_level1_keys():
     print("load level1 keys done %d " % len(level1_keys))
     mysql_cursor.close()
     mysql_connection.close()
+
+    server_account(len(level1_keys))
 
 
 def refresh_followers():
@@ -604,6 +652,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
 def get_id_by_name(request, user_name):
     if request.method == 'GET':
         logger.info("find id for %s " % user_name)
+        server_request()
         user_name = user_name.strip()
         try:
             tw_api, key_id = get_twitter_api(2, False)
@@ -651,6 +700,7 @@ def get_seed_users_by_key(request, key_word):
 def send_direct_messages(request):
     if request.method == 'PUT':
         logger.info("into send DM 111111")
+        server_request()
         request_body = request.data
         logger.info(request_body)
         user_list = request_body["users"]
@@ -869,6 +919,7 @@ def get_ip(request):
 
 @ api_view(['GET', 'PUT', 'DELETE'])
 def crm_manager(request):
+    server_request()
     if request.method == 'GET':
         logger.info("into CRM")
     load_level1_keys()
