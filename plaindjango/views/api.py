@@ -14,8 +14,7 @@ import mysql.connector as mysql
 import random
 from datetime import datetime
 import os
-from kubernetes import client, config
-
+from requests import get
 
 logger = logging.getLogger('django')
 
@@ -799,13 +798,8 @@ def refresh_dmcontents(request):
 @ api_view(['GET', 'PUT', 'DELETE'])
 def get_ip(request):
     if request.method == 'GET':
-
-        config.load_incluster_config()
-
-        v1 = client.CoreV1Api()
-        for address in v1.read_node(os.environ['HOSTNAME']).status.addresses:
-            if address.type == 'ExternalIP':
-                logger.info(address.address)
+        ip = get('https://api.ipify.org').text
+        logger.info('My public IP address is: {}'.format(ip))
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
