@@ -591,7 +591,7 @@ def get_id_by_name(request, user_name):
         try:
             tw_api, key_id = get_twitter_api(2, False)
             if tw_api == None:
-                HttpResponse("api key empty")
+                return HttpResponse("api key empty")
             user = tw_api.get_user(user_name)
 
             # fetching the ID
