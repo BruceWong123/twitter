@@ -160,6 +160,7 @@ def insert_last_reply(user_id, last_timestamp):
 
 
 def load_level1_keys():
+    logger.info("loading level 1 key")
     level1_keys.clear()
     mysql_connection = mysql.connect(
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
@@ -173,6 +174,7 @@ def load_level1_keys():
     server_id = -1
     query_result = mysql_cursor.fetchall()
     for row in query_result:
+        logger.info("query result")
         server_id = row[0]
         logger.info("server id %s " % server_id)
 
