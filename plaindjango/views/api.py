@@ -170,7 +170,7 @@ def load_level1_keys():
     ip = get('https://api.ipify.org').text
     logger.info('My public IP address is: {}'.format(ip))
 
-    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + ip + '\''
+    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + str(ip) + '\''
 
     logger.info(sql)
     mysql_cursor.execute(sql)
