@@ -172,7 +172,7 @@ def load_level1_keys():
 
     sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + ip + '\''
 
-    print(sql)
+    logger.info(sql)
     mysql_cursor.execute(sql)
     server_id = -1
     query_result = mysql_cursor.fetchall()
