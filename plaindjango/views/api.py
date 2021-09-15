@@ -69,7 +69,7 @@ def server_account(account):
     ip = get('https://api.ipify.org').text
     logger.info('My public IP address is: {}'.format(ip))
 
-    sql = "Update asynctask_server Set requests = \"" + \
+    sql = "Update asynctask_server Set accounts = \"" + \
         str(account) + "\" Where ip = " + '\'' + str(ip) + '\''
 
     mysql_cursor.execute(sql)
