@@ -119,7 +119,7 @@ def load_level2_keys():
         key["ID"] = row[7]
         key["LAST"] = row[10]
         level2_keys.append(key)
-    logger.info("load level2 keys done ", len(level2_keys))
+    logger.info("load level2 keys done %d " % len(level2_keys))
     print("load level2 keys done ", len(level2_keys))
     mysql_cursor.close()
     mysql_connection.close()
