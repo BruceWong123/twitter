@@ -96,7 +96,7 @@ def load_level2_keys():
 
     ip = get('https://api.ipify.org').text
     logger.info('My public IP address is: {}'.format(ip))
-    sql = "SELECT * FROM asynctask_server WHERE ip = " + ip
+    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + ip + '\''
     mysql_cursor.execute(sql)
     server_id = -1
     query_result = mysql_cursor.fetchall()
@@ -104,7 +104,8 @@ def load_level2_keys():
         server_id = row[0]
         logger.info("server id %s " % server_id)
 
-    sql = "SELECT * FROM asynctask_api_key WHERE level = '2' and server_id = " + server_id
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '2' and server_id = " + \
+        '\'' + server_id + '\''
     mysql_cursor.execute(sql)
 
     query_result = mysql_cursor.fetchall()
@@ -166,10 +167,12 @@ def load_level1_keys():
         host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
     print("Connected to:", mysql_connection.get_server_info())
     mysql_cursor = mysql_connection.cursor(buffered=True)
-
     ip = get('https://api.ipify.org').text
     logger.info('My public IP address is: {}'.format(ip))
-    sql = "SELECT * FROM asynctask_server WHERE ip = " + ip
+
+    sql = "SELECT * FROM asynctask_server WHERE ip = " + '\'' + ip + '\''
+
+    print(sql)
     mysql_cursor.execute(sql)
     server_id = -1
     query_result = mysql_cursor.fetchall()
@@ -178,7 +181,8 @@ def load_level1_keys():
         server_id = row[0]
         logger.info("server id %s " % server_id)
 
-    sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and server_id = " + server_id
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and server_id = " + \
+        '\'' + server_id + '\''
     mysql_cursor.execute(sql)
     query_result = mysql_cursor.fetchall()
 
