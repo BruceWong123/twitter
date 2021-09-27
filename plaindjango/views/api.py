@@ -713,7 +713,7 @@ def get_tweet_by_name(request, user_name):
             result = ""
             for tweet in tweets:
                 result += tweet.full_text
-                result += '/n/n'
+                result += '**********************************'
 
             return HttpResponse(str(result))
         except tweepy.TweepError as e:
