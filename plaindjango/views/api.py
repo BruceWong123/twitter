@@ -707,7 +707,9 @@ def get_tweet_by_name(request, user_name):
                                           tweet_mode='extended'
                                           )
             if tweets != None:
+                logger.info("found tweets")
                 logger.info(tweets)
+                logger.info("length of tweet: %d " % len(tweets))
 
             return HttpResponse(str(tweets))
         except tweepy.TweepError as e:
