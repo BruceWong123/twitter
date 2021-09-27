@@ -563,17 +563,21 @@ def store_followers(ids):
                 if user.friends_count != None:
                     data["friends_count"] = user.friends_count
 
-                # tweets = tw_api.user_timeline(screen_name=user.screen_name,
-                #                               # 200 is the maximum allowed count
-                #                               count=20,
-                #                               include_rts=False,
-                #                               # Necessary to keep full_text
-                #                               # otherwise only the first 140 words are extracted
-                #                               tweet_mode='extended'
-                #                               )
-                # if tweets != None:
-                #     data["tweets"] = tweets
-                #     logger.info(tweets)
+                tweets = tw_api.user_timeline(screen_name=user.screen_name,
+                                              # 200 is the maximum allowed count
+                                              count=20,
+                                              include_rts=False,
+                                              # Necessary to keep full_text
+                                              # otherwise only the first 140 words are extracted
+                                              tweet_mode='extended'
+                                              )
+                if tweets != None:
+                    logger.info("found tweets")
+                    logger.info("length of tweet: %d " % len(tweets))
+                result = []
+                for tweet in tweets:
+                    result.append(tweet.full_text)
+                data["tweets"] = result
 
                 logger.info("collected data")
                 logger.info(data)
@@ -708,7 +712,6 @@ def get_tweet_by_name(request, user_name):
                                           )
             if tweets != None:
                 logger.info("found tweets")
-                logger.info(tweets)
                 logger.info("length of tweet: %d " % len(tweets))
             result = []
             for tweet in tweets:
