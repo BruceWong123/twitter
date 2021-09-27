@@ -166,6 +166,8 @@ def load_level2_keys():
         key["ACCESS_SECRET"] = row[3]
         key["ID"] = row[7]
         key["LAST"] = row[10]
+        key["SERVER_ID"] = str(server_id)
+
         level2_keys.append(key)
     logger.info("load level2 keys done %d " % len(level2_keys))
     print("load level2 keys done ", len(level2_keys))
@@ -244,6 +246,7 @@ def load_level1_keys():
         key["ACCESS_SECRET"] = row[3]
         key["ID"] = row[7]
         key["LAST"] = row[10]  # date for last crawling of reply message
+        key["SERVER_ID"] = str(server_id)
 
         level1_keys.append(key)
     logger.info("load level1 keys done %d " % len(level1_keys))
@@ -759,10 +762,13 @@ def store_direct_message_by_dict(messages):
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
     for key, value in messages.items():
-        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc,server_id) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (value["messageid"], value["sender"],
                value["receiver"],  value["type"],
-               value["content"],  value["replied"],  value["date"],  value["sender_name"],  value["receiver_name"], value["reply"], value["followed"], value["receiver_desc"])
+               value["content"],  value["replied"],  value["date"],
+               value["sender_name"],  value["receiver_name"],
+               value["reply"], value["followed"],
+               value["receiver_desc"], value["server_id"])
 
         mysql_cursor.execute(sql, val)
 
@@ -949,15 +955,15 @@ def crm_manager(request):
             messages = dict()
             for direct_message in direct_messages:
                 if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
-                    logger.info(direct_message.created_timestamp)
-                    logger.info("The type is : " + direct_message.type)
-                    logger.info("The id is : " + direct_message.id)
-                    logger.info("The recipient_id is : " +
-                                direct_message.message_create['target']['recipient_id'])
-                    logger.info("The sender_id is : " +
-                                direct_message.message_create['sender_id'])
-                    logger.info(
-                        "The text is : " + str(direct_message.message_create['message_data']['text']))
+                    # logger.info(direct_message.created_timestamp)
+                    # logger.info("The type is : " + direct_message.type)
+                    # logger.info("The id is : " + direct_message.id)
+                    # logger.info("The recipient_id is : " +
+                    #             direct_message.message_create['target']['recipient_id'])
+                    # logger.info("The sender_id is : " +
+                    #             direct_message.message_create['sender_id'])
+                    # logger.info(
+                    #     "The text is : " + str(direct_message.message_create['message_data']['text']))
                     receiver_id = direct_message.message_create['target']['recipient_id']
                     sender_name = tw_api.get_user(
                         direct_message.message_create['sender_id']).screen_name
@@ -968,19 +974,20 @@ def crm_manager(request):
                     relation = tw_api.show_friendship(
                         target_id=direct_message.message_create['sender_id'])
                     # logger.info(relation[0])
+
+                    # ******** follow the sender if not
                     follwed = "No"
                     if not relation[0].following and not relation[0].following_requested:
                         create_friendship_by_id(
                             direct_message.message_create['sender_id'], tw_api, key["ID"])
+                        logger.info("followed user by id")
                     if relation[0].followed_by:
                         follwed = "Yes"
-                    logger.info("followed user by id")
 
+                    # ********* record the id of the message content that was sent to the users, also mark if they replied
                     users = mongo_db["users"]
-
                     replied = False
                     content_id = -1
-
                     query_result = users.find(
                         {"id": int(direct_message.message_create['sender_id'])})
                     for x in query_result:
@@ -988,10 +995,12 @@ def crm_manager(request):
                             replied = x["replied"]
                         if "content_id" in x:
                             content_id = x["content_id"]
-                    logger.info("replied")
-                    logger.info(replied)
-                    logger.info("content id")
-                    logger.info(content_id)
+                    # logger.info("replied")
+                    # logger.info(replied)
+                    # logger.info("content id")
+                    # logger.info(content_id)
+
+                    # *********** record to stat if this is first time reply, update two tables
                     if not replied and content_id != -1:  # first time reply
                         record_content_update(
                             "asynctask_campaign_content", 6, 5, content_id, True)
@@ -1003,7 +1012,9 @@ def crm_manager(request):
 
                     # store_direct_message(
                     #     direct_message, sender_name, receiver_name)
-                    if sender_name in messages:
+
+                    # ************* if there is multiple messages from the same sender, combine them together
+                    if sender_name in messages:  # ***** not the first message, only attach content
                         data = messages[sender_name]
                         content = str(
                             direct_message.message_create['message_data']['text']) + ". \n\n\n " + data["content"]
@@ -1026,6 +1037,7 @@ def crm_manager(request):
                         data["receiver_desc"] = receiver_desc
                         data["reply"] = " "
                         data["followed"] = follwed
+                        data["server_id"] = key["SERVER_ID"]
 
                         messages[sender_name] = data
                         count += 1
