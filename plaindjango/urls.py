@@ -26,6 +26,7 @@ urlpatterns = [
     path('content/', views.api.refresh_dmcontents),
     path('humanize/', views.api.humanize),
     path('getid/<str:user_name>/', views.api.get_id_by_name),
+    path('gettweet/<str:user_name>/', views.api.get_tweet_by_name),
     path('refresh/', views.api.refresh_api),
     path('seedusers/<str:key_word>/', views.api.get_seed_users_by_key),
 

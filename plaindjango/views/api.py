@@ -689,6 +689,36 @@ def get_id_by_name(request, user_name):
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
+def get_tweet_by_name(request, user_name):
+    if request.method == 'GET':
+        logger.info("find tweet for %s " % user_name)
+        user_name = user_name.strip()
+        try:
+            tw_api, key_id = get_twitter_api(2, False)
+            if tw_api == None:
+                return HttpResponse("api key empty")
+
+            tweets = tw_api.user_timeline(screen_name=user_name,
+                                          # 200 is the maximum allowed count
+                                          count=20,
+                                          include_rts=False,
+                                          # Necessary to keep full_text
+                                          # otherwise only the first 140 words are extracted
+                                          tweet_mode='extended'
+                                          )
+            if tweets != None:
+                logger.info(tweets)
+
+            return HttpResponse(str(tweets))
+        except tweepy.TweepError as e:
+            print("Tweepy Error: {}".format(e))
+            logger.info("Tweepy Error: {}".format(e))
+            error_message = "get_id_by_name " + format(e)
+            set_api_status(tw_api, error_message, key_id)
+            return HttpResponse(str(format(e)))
+
+
+@ api_view(['GET', 'PUT', 'DELETE'])
 def get_followers_by_name(request, user_name):
     if request.method == 'GET':
         user_name = user_name.strip()
