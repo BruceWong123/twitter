@@ -710,10 +710,9 @@ def get_tweet_by_name(request, user_name):
                 logger.info("found tweets")
                 logger.info(tweets)
                 logger.info("length of tweet: %d " % len(tweets))
-            result = ""
+            result = []
             for tweet in tweets:
-                result += tweet.full_text
-                result += '**********************************'
+                result.append(tweet.full_text)
 
             return HttpResponse(str(result))
         except tweepy.TweepError as e:
