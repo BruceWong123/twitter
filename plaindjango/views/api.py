@@ -573,6 +573,7 @@ def store_followers(ids):
                                               )
                 if tweets != None:
                     data["tweets"] = tweets
+                    logger.info(tweets)
 
                 logger.info("collected data")
                 logger.info(data)
