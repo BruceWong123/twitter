@@ -884,6 +884,7 @@ def get_followers_count_by_id(id):
 
     tw_api, key_id = get_twitter_api(2)
     if tw_api == None:
+        logger.info("level 2 api key empty")
         return 0
     followers = 0
     try:
