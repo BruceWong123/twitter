@@ -541,11 +541,13 @@ def store_followers(ids):
                 logger.info("found normal user %s " % user.screen_name)
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "location": user.location, "dmed": False}
+                        "follwers": user.followers_count, "dmed": False}
                 # if user.utc_offset != None:
                 #     data["utc_offset"] = user.utc_offset
                 # if user.favourites_count != None:
                 #     data["favourites_count"] = user.favourites_count
+                if user.location != None:
+                    data["location"] = user.location
                 if user.lang != None:
                     data["lang"] = user.lang
                 # if user.status != None:
@@ -565,7 +567,7 @@ def store_followers(ids):
 
                 tweets = tw_api.user_timeline(screen_name=user.screen_name,
                                               # 200 is the maximum allowed count
-                                              count=20,
+                                              count=200,
                                               include_rts=False,
                                               # Necessary to keep full_text
                                               # otherwise only the first 140 words are extracted
@@ -574,19 +576,19 @@ def store_followers(ids):
                 if tweets != None:
                     logger.info("found tweets")
                     logger.info("length of tweet: %d " % len(tweets))
-                result = []
-                for tweet in tweets:
-                    result.append(tweet.full_text)
-                data["tweets"] = result
+                    result = []
+                    for tweet in tweets:
+                        result.append(tweet.full_text)
+                    data["tweets"] = result
 
                 logger.info("collected data")
                 logger.info(data)
                 db_users.update(key, data, upsert=True)
                 count += 1
                 logger.info("found normal user count %d " % count)
-                if count == 50:
+                if count == 10:
                     count = 0
-                    insert_stat_info(50, 0, 0)
+                    insert_stat_info(10, 0, 0)
 
                 time.sleep(300)
     insert_stat_info(count, 0, 0)
