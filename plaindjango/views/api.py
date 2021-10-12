@@ -583,7 +583,7 @@ def store_followers(ids):
 
                 logger.info("collected data")
                 logger.info(data)
-                db_users.update(key, data, upsert=True)
+                db_users.update(key,  {"$setOnInsert": data}, upsert=True)
                 count += 1
                 logger.info("found normal user count %d " % count)
                 if count == 10:
