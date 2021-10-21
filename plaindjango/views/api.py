@@ -486,7 +486,8 @@ def set_api_status(tw_api, error_message, key_id):
 
     try:
         if error_message != "normal":
-            tw_api.send_direct_message("bruce_ywong", error_message)
+            tw_api.send_direct_message(71595725, error_message)
+            logger.info("status is not normal")
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -538,57 +539,65 @@ def store_followers(ids):
                 seed_users.update(key, data, upsert=True)
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
-                logger.info("found normal user %s " % user.screen_name)
-                key = {"id": user.id}
-                data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                        "follwers": user.followers_count, "dmed": False}
-                # if user.utc_offset != None:
-                #     data["utc_offset"] = user.utc_offset
-                # if user.favourites_count != None:
-                #     data["favourites_count"] = user.favourites_count
-                if user.location != None:
-                    data["location"] = user.location
-                if user.lang != None:
-                    data["lang"] = user.lang
-                # if user.status != None:
-                #     data["status"] = user.status
-                # if user.notifications != None:
-                #     data["notifications"] = user.notifications
-                # if user.protected != None:
-                #     data["protected"] = user.protected
-                if user.created_at != None:
-                    data["created_at"] = user.created_at
-                if user.description != None:
-                    data["description"] = user.description
-                if user.url != None:
-                    data["url"] = user.url
-                if user.friends_count != None:
-                    data["friends_count"] = user.friends_count
+                try:
+                    logger.info("found normal user %s " % user.screen_name)
+                    key = {"id": user.id}
+                    data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+                            "follwers": user.followers_count, "dmed": False}
+                    # if user.utc_offset != None:
+                    #     data["utc_offset"] = user.utc_offset
+                    # if user.favourites_count != None:
+                    #     data["favourites_count"] = user.favourites_count
+                    if user.location != None:
+                        data["location"] = user.location
+                    if user.lang != None:
+                        data["lang"] = user.lang
+                    # if user.status != None:
+                    #     data["status"] = user.status
+                    # if user.notifications != None:
+                    #     data["notifications"] = user.notifications
+                    # if user.protected != None:
+                    #     data["protected"] = user.protected
+                    if user.created_at != None:
+                        data["created_at"] = user.created_at
+                    if user.description != None:
+                        data["description"] = user.description
+                    if user.url != None:
+                        data["url"] = user.url
+                    if user.friends_count != None:
+                        data["friends_count"] = user.friends_count
 
-                tweets = tw_api.user_timeline(screen_name=user.screen_name,
-                                              # 200 is the maximum allowed count
-                                              count=200,
-                                              include_rts=False,
-                                              # Necessary to keep full_text
-                                              # otherwise only the first 140 words are extracted
-                                              tweet_mode='extended'
-                                              )
-                if tweets != None:
-                    logger.info("found tweets")
-                    logger.info("length of tweet: %d " % len(tweets))
-                    result = []
-                    for tweet in tweets:
-                        result.append(tweet.full_text)
-                    data["tweets"] = result
+                    tweets = tw_api.user_timeline(screen_name=user.screen_name,
+                                                  # 200 is the maximum allowed count
+                                                  count=200,
+                                                  include_rts=False,
+                                                  # Necessary to keep full_text
+                                                  # otherwise only the first 140 words are extracted
+                                                  tweet_mode='extended'
+                                                  )
+                    if tweets != None:
+                        logger.info("found tweets")
+                        logger.info("length of tweet: %d " % len(tweets))
+                        result = []
+                        for tweet in tweets:
+                            result.append(tweet.full_text)
+                        data["tweets"] = result
 
-                logger.info("collected data")
-                logger.info(data)
-                db_users.update(key,  {"$setOnInsert": data}, upsert=True)
-                count += 1
-                logger.info("found normal user count %d " % count)
-                if count == 10:
-                    count = 0
-                    insert_stat_info(10, 0, 0)
+                    logger.info("collected data")
+                    logger.info(data)
+                    db_users.update(key,  {"$setOnInsert": data}, upsert=True)
+                    count += 1
+                    logger.info("found normal user count %d " % count)
+                    if count == 10:
+                        count = 0
+                        insert_stat_info(10, 0, 0)
+
+                except tweepy.TweepError as e:
+                    print("Tweepy Error: {}".format(e))
+                    logger.info(
+                        "get user time line Tweepy Error: {}".format(e))
+                    insert_stat_info(count, 0, 0)
+                    set_api_status(tw_api, format(e), key_id)
 
                 time.sleep(300)
     insert_stat_info(count, 0, 0)
@@ -612,7 +621,7 @@ def get_followers(user_name):
             logger.info("get new page with ids of %d" % len(ids))
             print("get new page with ids of %d" % len(ids))
             store_followers(ids)
-            time.sleep(5000)
+            time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
     except tweepy.TweepError as e:
         print("Tweepy Error: {}".format(e))
