@@ -1063,7 +1063,7 @@ def crm_manager(request):
 
         tw_api = tweepy.API(auth, wait_on_rate_limit=True)
         try:
-            direct_messages = tw_api.list_direct_messages()
+            direct_messages = tw_api.get_direct_messages()
 
             logger.info("the number of messages is %d " % len(direct_messages))
             count = 0
