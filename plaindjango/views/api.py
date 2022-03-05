@@ -1130,7 +1130,7 @@ def crm_manager(request):
                         record_content_update(
                             "asynctask_twitter_account", 10, 9, key["ID"], True)
 
-                    users.update({"id": int(direct_message.message_create['sender_id'])}, {
+                    users.update_one({"id": int(direct_message.message_create['sender_id'])}, {
                         "$set": {"replied": True}})
 
                     # store_direct_message(
