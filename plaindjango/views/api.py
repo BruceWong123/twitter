@@ -310,6 +310,7 @@ def get_api_by_key(key):
 
 
 def get_twitter_api_by_id(api_id):
+
     for key in level1_keys:
         if key["ID"] == api_id:
             auth = tweepy.OAuthHandler(
@@ -631,6 +632,39 @@ def get_followers(user_name):
     print("done loading all followers")
 
 
+# def generate_direct_reply() {
+
+#     users_list = []
+#     users_info = {}
+#     users_info["name"] = user_name
+#     users_info["id"] = user_id
+#     users_list.append(users_info)
+#     put_url = SERVEICE_ENDPOINT + "directmessage/"
+#     data_dict = {}
+#     data_dict["users"] = users_list
+#     data_dict["content"] = context
+#     data_dict["api_id"] = api_id
+#     data_dict["isreply"] = True
+#     session = requests.session()
+#     session.keep_alive = False
+#     logger.info("send request")
+#     data = json.dumps(data_dict)
+
+#     tw_api, key_id = get_twitter_api(1)
+#     if tw_api == None:
+#         return HttpResponse("api keys empty")
+#     is_reply = False
+#     if 'api_id' in request_body.keys():
+#         logger.info("found api id in request")
+#         tw_api, key_id = get_twitter_api_by_id(request_body["api_id"])
+#         is_reply = True
+#     logger.info(user_list)
+#     logger.info(content)
+#     t = threading.Thread(target=send_direct_message,
+#                          args=(user_list, content, content_id, tw_api, is_reply, key_id))
+# }
+
+
 def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_id):
 
     logger.info("contetn %s " % text)
@@ -781,7 +815,8 @@ def send_direct_messages(request):
             return HttpResponse("api keys empty")
         is_reply = False
         if 'api_id' in request_body.keys():
-            logger.info("found api id in request")
+            logger.info("found api id in request %s " % request_body["api_id"])
+            # api_is is actally the receiver id, need to be converted to server id
             tw_api, key_id = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
         logger.info(user_list)

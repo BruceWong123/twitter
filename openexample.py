@@ -1,15 +1,18 @@
-import os 
+import os
 import openai
 
- 
-openai.api_key = "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"
+
+openai.api_key = "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"
 completion = openai.Completion()
 
-start_chat_log = '''Human: Hello, who are you?
-AI: I am doing great. How can I help you today?
-Human: I wish to get something to eat, do you have any?
-AI: I don't
-'''
+# start_chat_log = '''Human: Hello, who are you?
+# AI: I am doing great. How can I help you today?
+# Human: I wish to get something to eat, do you have any?
+# AI: I don't
+# '''
+
+start_chat_log = ''
+
 
 def ask(question, chat_log=None):
     if chat_log is None:
@@ -23,4 +26,4 @@ def ask(question, chat_log=None):
     return answer
 
 
-print(ask('do you like any animals?'))
+print(ask('Have you heard of NFT?'))
