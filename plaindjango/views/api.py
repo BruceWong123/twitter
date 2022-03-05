@@ -1066,10 +1066,16 @@ def crm_manager(request):
             direct_messages = tw_api.get_direct_messages()
 
             logger.info("the number of messages is %d " % len(direct_messages))
+
             count = 0
             last_timestamp = 0
             messages = dict()
             for direct_message in direct_messages:
+                logger.info("created timestamp: %s " %
+                            direct_message.created_timestamp)
+                logger.info("receiver: %s " %
+                            direct_message.message_create['target']['recipient_id'])
+                logger.info("lasttime for key : %s " % key['LAST'])
                 if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                     # logger.info(direct_message.created_timestamp)
                     # logger.info("The type is : " + direct_message.type)
