@@ -311,18 +311,25 @@ def get_api_by_key(key):
 
 def get_twitter_api_by_id(api_id):
 
-    for key in level1_keys:
-        logger.info("key id: %s " % key["ID"])
-        if key["ID"] == api_id:
-            auth = tweepy.OAuthHandler(
-                key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
-            auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    print("Connected to:", mysql_connection.get_server_info())
+    mysql_cursor = mysql_connection.cursor(buffered=True)
 
-            logger.info(key)
+    sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and user_id = " + \
+        '\'' + str(api_id) + '\''
 
-            tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                                wait_on_rate_limit_notify=True)
-            return (tw_api, key["ID"])
+    mysql_cursor.execute(sql)
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        auth = tweepy.OAuthHandler(
+            row[0], row[1])
+        auth.set_access_token(row[2], row[3])
+
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+                            wait_on_rate_limit_notify=True)
+        return (tw_api, row[7])
     logger.info("could not find api by id !!!!!!!")
     return None
 
