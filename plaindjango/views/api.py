@@ -19,7 +19,7 @@ import os
 import openai
 
 
-openai.api_key = "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"
+openai.api_key = "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"
 completion = openai.Completion()
 
 
