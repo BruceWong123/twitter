@@ -326,8 +326,7 @@ def get_api_by_key(key):
     auth = tweepy.OAuthHandler(key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
     auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
-    tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                        wait_on_rate_limit_notify=True)
+    tw_api = tweepy.API(auth, wait_on_rate_limit=True)
     return tw_api
 
 
@@ -349,8 +348,9 @@ def get_twitter_api_by_id(api_id):
             row[0], row[1])
         auth.set_access_token(row[2], row[3])
 
-        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                            wait_on_rate_limit_notify=True)
+        # tw_api = tweepy.API(auth, wait_on_rate_limit=True,
+        #                     wait_on_rate_limit_notify=True)
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True)
         return (tw_api, row[7])
     logger.info("could not find api by id !!!!!!!")
     return None
@@ -425,11 +425,9 @@ def get_twitter_api(level, use_proxy=False):
     free_proxy = get_free_proxy()
     if use_proxy and free_proxy != None:
         logger.info("generate api by proxy %s " % free_proxy)
-        tw_api = tweepy.API(auth, proxy=free_proxy, wait_on_rate_limit=True,
-                            wait_on_rate_limit_notify=True)
+        tw_api = tweepy.API(auth, proxy=free_proxy, wait_on_rate_limit=True)
     else:
-        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                            wait_on_rate_limit_notify=True)
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True)
     logger.info("generated api")
 
     return (tw_api, key["ID"])
@@ -1063,9 +1061,7 @@ def crm_manager(request):
             key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
         auth.set_access_token(key["ACCESS_KEY"], key["ACCESS_SECRET"])
 
-        tw_api = tweepy.API(auth, wait_on_rate_limit=True,
-                            wait_on_rate_limit_notify=True)
-
+        tw_api = tweepy.API(auth, wait_on_rate_limit=True)
         try:
             direct_messages = tw_api.list_direct_messages()
 
