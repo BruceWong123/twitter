@@ -566,7 +566,7 @@ def store_followers(ids):
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "crawled": False}
                 seed_users.update(key, {"$setOnInsert": data}, upsert=True)
-            relation = tw_api.show_friendship(target_id=user.id)
+            relation = tw_api.get_friendship(target_id=user.id)
             if relation[0].can_dm:
                 try:
                     logger.info("found normal user %s " % user.screen_name)
@@ -1094,7 +1094,7 @@ def crm_manager(request):
                     receiver_desc = get_desc_by_id(receiver_id)
                     logger.info("sender name %s %s " %
                                 (sender_name, receiver_name))
-                    relation = tw_api.show_friendship(
+                    relation = tw_api.get_friendship(
                         target_id=direct_message.message_create['sender_id'])
                     # logger.info(relation[0])
 
