@@ -15,6 +15,28 @@ import random
 from datetime import datetime
 import os
 from requests import get
+import os
+import openai
+
+
+openai.api_key = "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"
+completion = openai.Completion()
+
+
+start_chat_log = ''
+
+
+def openai_auto_reply(question, chat_log=None):
+    if chat_log is None:
+        chat_log = start_chat_log
+    prompt = f'{chat_log}Human: {question}\nAI:'
+    response = completion.create(
+        prompt=prompt, engine="davinci", stop=['\nHuman'], temperature=0.9,
+        top_p=1, frequency_penalty=0, presence_penalty=0.6, best_of=1,
+        max_tokens=150)
+    answer = response.choices[0].text.strip()
+    return answer
+
 
 logger = logging.getLogger('django')
 
@@ -244,7 +266,7 @@ def load_level1_keys():
         key["CONSUMER_SECRET"] = row[1]
         key["ACCESS_KEY"] = row[2]
         key["ACCESS_SECRET"] = row[3]
-        key["ID"] = row[7]
+        key["ID"] = row[7]  # user id  the account user id
         key["LAST"] = row[10]  # date for last crawling of reply message
         key["SERVER_ID"] = str(server_id)
 
@@ -640,39 +662,6 @@ def get_followers(user_name):
     print("done loading all followers")
 
 
-# def generate_direct_reply() {
-
-#     users_list = []
-#     users_info = {}
-#     users_info["name"] = user_name
-#     users_info["id"] = user_id
-#     users_list.append(users_info)
-#     put_url = SERVEICE_ENDPOINT + "directmessage/"
-#     data_dict = {}
-#     data_dict["users"] = users_list
-#     data_dict["content"] = context
-#     data_dict["api_id"] = api_id
-#     data_dict["isreply"] = True
-#     session = requests.session()
-#     session.keep_alive = False
-#     logger.info("send request")
-#     data = json.dumps(data_dict)
-
-#     tw_api, key_id = get_twitter_api(1)
-#     if tw_api == None:
-#         return HttpResponse("api keys empty")
-#     is_reply = False
-#     if 'api_id' in request_body.keys():
-#         logger.info("found api id in request")
-#         tw_api, key_id = get_twitter_api_by_id(request_body["api_id"])
-#         is_reply = True
-#     logger.info(user_list)
-#     logger.info(content)
-#     t = threading.Thread(target=send_direct_message,
-#                          args=(user_list, content, content_id, tw_api, is_reply, key_id))
-# }
-
-
 def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_id):
 
     logger.info("contetn %s " % text)
@@ -802,6 +791,29 @@ def get_seed_users_by_key(request, key_word):
         return HttpResponse("request sent")
 
 
+def generate_auto_reply(receiver_id, sender_name, sender_id, message):
+
+    logger.info("in generate auto reply by openai")
+    logger.info("receiver id: %s " % receiver_id)
+    logger.info("sender_name: %s " % sender_name)
+    logger.info("sender_id : %s " % sender_id)
+    logger.info("message : %s " % message)
+
+    users_list = []
+    users_info = {}
+    users_info["name"] = sender_name
+    users_info["id"] = sender_id
+    users_list.append(users_info)
+
+    tw_api, key_id = get_twitter_api_by_id(receiver_id)
+    is_reply = True
+    content = openai_auto_reply(message)
+    t = threading.Thread(target=send_direct_message,
+                         args=(users_list, content, -1, tw_api, is_reply, key_id))
+    t.start()
+    logger.info("done automatic DM with %s " % content)
+
+
 @ api_view(['GET', 'PUT', 'DELETE'])
 def send_direct_messages(request):
     if request.method == 'PUT':
@@ -824,7 +836,7 @@ def send_direct_messages(request):
         is_reply = False
         if 'api_id' in request_body.keys():
             logger.info("found api id in request %s " % request_body["api_id"])
-            # api_is is actally the receiver id, need to be converted to server id
+            # api_is is actally the receiver id, need to be converted to user id of the API
             tw_api, key_id = get_twitter_api_by_id(request_body["api_id"])
             is_reply = True
         logger.info(user_list)
@@ -877,6 +889,9 @@ def store_direct_message_by_dict(messages):
         mysql_cursor.execute(sql, val)
 
         mysql_connection.commit()
+
+        generate_auto_reply(
+            value["receiver"], value["sender_name"], value["sender"], value["content"])
 
     mysql_cursor.close()
     mysql_connection.close()
