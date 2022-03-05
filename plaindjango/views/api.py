@@ -897,7 +897,7 @@ def store_direct_message_by_dict(messages):
 
 def create_friendship_by_id(userID, tw_api, key_id):
     try:
-        tw_api.create_friendship(userID)
+        tw_api.create_friendship(user_id=userID)
         set_api_status(tw_api, "normal", key_id)
     except tweepy.errors.TweepyException as e:
         print("Tweepy Error: {}".format(e))
