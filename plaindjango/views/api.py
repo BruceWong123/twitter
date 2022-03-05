@@ -536,7 +536,7 @@ def store_followers(ids):
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "crawled": False}
-                seed_users.update(key, data, upsert=True)
+                seed_users.update(key, {"$setOnInsert": data}, upsert=True)
             relation = tw_api.show_friendship(target_id=user.id)
             if relation[0].can_dm:
                 try:
