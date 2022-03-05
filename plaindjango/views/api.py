@@ -807,9 +807,7 @@ def generate_auto_reply(receiver_id, sender_name, sender_id, message):
     tw_api, key_id = get_twitter_api_by_id(receiver_id)
     is_reply = True
     content = openai_auto_reply(message)
-    t = threading.Thread(target=send_direct_message,
-                         args=(users_list, content, -1, tw_api, is_reply, key_id))
-    t.start()
+    send_direct_message(users_list, content, -1, tw_api, is_reply, key_id)
     logger.info("done automatic DM with %s " % content)
 
 
