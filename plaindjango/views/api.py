@@ -517,7 +517,7 @@ def set_api_status(tw_api, error_message, key_id):
         if error_message != "normal":
             tw_api.send_direct_message(71595725, error_message)
             logger.info("status is not normal")
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
 
@@ -543,7 +543,7 @@ def get_seed_users(key_word):
             logger.info("update done")
             time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         set_api_status(tw_api, format(e), key_id)
@@ -621,7 +621,7 @@ def store_followers(ids):
                         count = 0
                         insert_stat_info(10, 0, 0)
 
-                except tweepy.TweepError as e:
+                except tweepy.errors.TweepError as e:
                     print("Tweepy Error: {}".format(e))
                     logger.info(
                         "get user time line Tweepy Error: {}".format(e))
@@ -652,7 +652,7 @@ def get_followers(user_name):
             store_followers(ids)
             time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         set_api_status(tw_api, format(e), key_id)
@@ -700,7 +700,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
 #           tw_api.destroy_direct_message(direct_message.id)
         insert_stat_info(0, len(list_of_users), 0)
         set_api_status(tw_api, "normal", key_id)
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         set_api_status(tw_api, format(e), key_id)
@@ -724,7 +724,7 @@ def get_id_by_name(request, user_name):
             logger.info(ID)
             set_api_status(tw_api, "normal", key_id)
             return HttpResponse(str(ID))
-        except tweepy.TweepError as e:
+        except tweepy.errors.TweepError as e:
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
             error_message = "get_id_by_name " + format(e)
@@ -758,7 +758,7 @@ def get_tweet_by_name(request, user_name):
                 result.append(tweet.full_text)
 
             return HttpResponse(str(result))
-        except tweepy.TweepError as e:
+        except tweepy.errors.TweepError as e:
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
             error_message = "get_id_by_name " + format(e)
@@ -899,7 +899,7 @@ def create_friendship_by_id(userID, tw_api, key_id):
     try:
         tw_api.create_friendship(userID)
         set_api_status(tw_api, "normal", key_id)
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         error_message = "create_friendship_by_id" + format(e)
@@ -956,7 +956,7 @@ def get_followers_count_by_id(id):
     followers = 0
     try:
         followers = tw_api.get_user(id).followers_count
-    except tweepy.TweepError as e:
+    except tweepy.errors.TweepError as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         error_message = "get_followers_count_by_id" + format(e)
@@ -1166,7 +1166,7 @@ def crm_manager(request):
                 insert_last_reply(key['ID'], last_timestamp)
 
             insert_stat_info(0, 0, count)
-        except tweepy.TweepError as e:
+        except tweepy.errors.TweepError as e:
             print("Tweepy Error: {}".format(e))
             logger.info("Tweepy Error: {}".format(e))
             set_api_status(tw_api, format(e), key["ID"])
