@@ -1075,6 +1075,7 @@ def crm_manager(request):
                             direct_message.created_timestamp)
                 logger.info("receiver: %s " %
                             direct_message.message_create['target']['recipient_id'])
+                logger.info("ID for key : %s " % key['ID'])
                 logger.info("lasttime for key : %s " % key['LAST'])
                 if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
                     # logger.info(direct_message.created_timestamp)
