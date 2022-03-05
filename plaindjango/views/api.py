@@ -19,7 +19,7 @@ import os
 import openai
 
 
-openai.api_key = "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"
+openai.api_key = "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"
 completion = openai.Completion()
 
 
@@ -539,7 +539,7 @@ def get_seed_users(key_word):
             data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                     "follwers": user.followers_count, "location": user.location, "crawled": False}
             logger.info(data)
-            db_users.update(key, {"$setOnInsert": data}, upsert=True)
+            db_users.update_one(key, {"$setOnInsert": data}, upsert=True)
             logger.info("update done")
             time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
@@ -565,7 +565,7 @@ def store_followers(ids):
                 key = {"id": user.id}
                 data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                         "follwers": user.followers_count, "location": user.location, "crawled": False}
-                seed_users.update(key, {"$setOnInsert": data}, upsert=True)
+                seed_users.update_one(key, {"$setOnInsert": data}, upsert=True)
             relation = tw_api.get_friendship(target_id=user.id)
             if relation[0].can_dm:
                 try:
@@ -614,7 +614,8 @@ def store_followers(ids):
 
                     logger.info("collected data")
                     logger.info(data)
-                    db_users.update(key,  {"$setOnInsert": data}, upsert=True)
+                    db_users.update_one(
+                        key,  {"$setOnInsert": data}, upsert=True)
                     count += 1
                     logger.info("found normal user count %d " % count)
                     if count == 10:
@@ -686,8 +687,8 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 logger.info("it is a auto message")
                 logger.info("sent content id: %s " % content_id)
                 users = mongo_db["users"]
-                users.update({"id": int(user["id"])}, {
-                             "$set": {"content_id": content_id}})
+                users.update_one({"id": int(user["id"])}, {
+                    "$set": {"content_id": content_id}})
                 logger.info("insert done")
                 record_content_update(
                     "asynctask_campaign_content", 6, 5, content_id, False)
