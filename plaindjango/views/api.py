@@ -665,7 +665,6 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
 
     logger.info("message content %s " % text)
     logger.info("content id %s " % content_id)
-    logger.info("into direct message by %s " % tw_api.get_me().screen_name)
     logger.info("send direct message >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     logger.info(list_of_users)
 
