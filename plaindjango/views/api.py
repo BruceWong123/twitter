@@ -312,6 +312,7 @@ def get_api_by_key(key):
 def get_twitter_api_by_id(api_id):
 
     for key in level1_keys:
+        logger.info("key id: %s " % key["ID"])
         if key["ID"] == api_id:
             auth = tweepy.OAuthHandler(
                 key["CONSUMER_KEY"], key["CONSUMER_SECRET"])
