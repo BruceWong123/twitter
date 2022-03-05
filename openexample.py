@@ -2,7 +2,7 @@ import os
 import openai
 
 
-openai.api_key = "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"
+openai.api_key = "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"
 completion = openai.Completion()
 
 # start_chat_log = '''Human: Hello, who are you?
