@@ -539,7 +539,7 @@ def get_seed_users(key_word):
             data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
                     "follwers": user.followers_count, "location": user.location, "crawled": False}
             logger.info(data)
-            db_users.update(key, data, upsert=True)
+            db_users.update(key, {"$setOnInsert": data}, upsert=True)
             logger.info("update done")
             time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
@@ -687,7 +687,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 logger.info("sent content id: %s " % content_id)
                 users = mongo_db["users"]
                 users.update({"id": int(user["id"])}, {
-                             "$set": {"content_id": content_id}}, upsert=True)
+                             "$set": {"content_id": content_id}})
                 logger.info("insert done")
                 record_content_update(
                     "asynctask_campaign_content", 6, 5, content_id, False)
@@ -1131,7 +1131,7 @@ def crm_manager(request):
                             "asynctask_twitter_account", 10, 9, key["ID"], True)
 
                     users.update({"id": int(direct_message.message_create['sender_id'])}, {
-                        "$set": {"replied": True}}, upsert=True)
+                        "$set": {"replied": True}})
 
                     # store_direct_message(
                     #     direct_message, sender_name, receiver_name)
