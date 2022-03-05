@@ -1078,7 +1078,7 @@ def crm_manager(request):
                 logger.info("ID for key : %s " % key['ID'])
                 logger.info("lasttime for key : %s " % key['LAST'])
                 if direct_message.created_timestamp > key['LAST'] and direct_message.message_create['target']['recipient_id'] == key["ID"]:
-                    logger.info("into message")
+                    logger.info("into message 111")
                     # logger.info(direct_message.created_timestamp)
                     # logger.info("The type is : " + direct_message.type)
                     # logger.info("The id is : " + direct_message.id)
@@ -1089,9 +1089,11 @@ def crm_manager(request):
                     # logger.info(
                     #     "The text is : " + str(direct_message.message_create['message_data']['text']))
                     receiver_id = direct_message.message_create['target']['recipient_id']
+                    logger.info("into message 22222")
                     sender_name = tw_api.get_user(
                         username=direct_message.message_create['sender_id']).screen_name
                     receiver_name = tw_api.get_user(id=receiver_id).screen_name
+                    logger.info("into message 333")
                     receiver_desc = get_desc_by_id(receiver_id)
                     logger.info("sender name %s %s " %
                                 (sender_name, receiver_name))
