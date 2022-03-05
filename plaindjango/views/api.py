@@ -35,7 +35,10 @@ def openai_auto_reply(question, chat_log=None):
         top_p=1, frequency_penalty=0, presence_penalty=0.6, best_of=1,
         max_tokens=150)
     answer = response.choices[0].text.strip()
-    return answer
+
+    result = answer.replace("Human:", " ")
+    result = result.replace("AI:", " ")
+    return result
 
 
 logger = logging.getLogger('django')
