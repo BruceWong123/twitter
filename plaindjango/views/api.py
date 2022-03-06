@@ -176,6 +176,9 @@ def load_level2_keys():
         server_id = row[3]
         logger.info("server id %s " % server_id)
 
+    if server_id == -1:
+        server_id = 0
+
     sql = "SELECT * FROM asynctask_api_key WHERE level = '2' and server_id = " + \
         '\'' + str(server_id) + '\''
     logger.info(sql)
@@ -255,6 +258,9 @@ def load_level1_keys():
         logger.info("query result")
         server_id = row[3]
         logger.info("server id %s " % server_id)
+
+    if server_id == -1:
+        server_id = 0
 
     sql = "SELECT * FROM asynctask_api_key WHERE level = '1' and server_id = " + \
         '\'' + str(server_id) + '\''
@@ -561,7 +567,10 @@ def store_followers(ids):
     seed_users = mongo_db["seedusers"]
     count = 0
     for i, uid in enumerate(ids):
-        user = tw_api.get_user(id=uid)
+
+        user = tw_api.get_user(user_id=uid)
+        print("found user ")
+        print(user)
         if user.followers_count > 100:
             if user.followers_count > 5000:
                 logger.info("found see user %s " % user.screen_name)
@@ -662,10 +671,10 @@ def get_followers(user_name):
     try:
         logger.info("into get page 2222222 %s " % user_name)
         set_user_crawled(tw_api.get_user(screen_name=user_name))
-        follwers_id = tw_api.followers_ids(screen_name=user_name)
+        follwers_id = tw_api.get_follower_ids(screen_name=user_name)
         logger.info(follwers_id)
         logger.info("followers : %s " % str(len(follwers_id)))
-        for page in tweepy.Cursor(tw_api.followers_ids, user_name).pages():
+        for page in tweepy.Cursor(tw_api.get_follower_ids, screen_name=user_name).pages():
             ids = []
             ids.extend(page)
             logger.info("get new page with ids of %d" % len(ids))
@@ -738,7 +747,7 @@ def get_id_by_name(request, user_name):
             tw_api, key_id = get_twitter_api(2, False)
             if tw_api == None:
                 return HttpResponse("api key empty")
-            user = tw_api.get_user(username=user_name)
+            user = tw_api.get_user(screen_name=user_name)
 
             # fetching the ID
             ID = user.id_str
@@ -974,7 +983,7 @@ def get_followers_count_by_id(id):
         return 0
     followers = 0
     try:
-        followers = tw_api.get_user(id=id).followers_count
+        followers = tw_api.get_user(user_id=id).followers_count
     except tweepy.errors.TweepyException as e:
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
@@ -1108,8 +1117,10 @@ def crm_manager(request):
                     #     "The text is : " + str(direct_message.message_create['message_data']['text']))
                     receiver_id = direct_message.message_create['target']['recipient_id']
                     sender_name = tw_api.get_user(
-                        id=direct_message.message_create['sender_id']).screen_name
-                    receiver_name = tw_api.get_user(id=receiver_id).screen_name
+                        user_id=direct_message.message_create['sender_id']).screen_name
+
+                    receiver_name = tw_api.get_user(
+                        user_id=receiver_id).screen_name
                     receiver_desc = get_desc_by_id(receiver_id)
                     logger.info("sender name %s %s " %
                                 (sender_name, receiver_name))
