@@ -637,6 +637,19 @@ def store_followers(ids):
     logger.info("done inserting all into mongo")
 
 
+def set_user_crawled(user):
+
+    key = {"id": user.id}
+    data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
+            "follwers": user.followers_count, "location": user.location, "crawled": True}
+    logger.info(data)
+    db_users = mongo_db["users"]
+    db_users.update_one(key, {"$setOnInsert": data}, upsert=True)
+    logger.info("update done")
+
+    pass
+
+
 def get_followers(user_name):
     print("Set up Threading get followers of %s" % user_name)
     logger.info("Set up Threading get followers of %s" % user_name)
@@ -648,6 +661,7 @@ def get_followers(user_name):
     count = 0
     try:
         logger.info("into get page 2222222 %s " % user_name)
+        set_user_crawled(tw_api.get_user(screen_name=user_name))
         follwers_id = tw_api.followers_ids(user_name)
         logger.info(follwers_id)
         logger.info("followers : %s " % str(len(follwers_id)))
