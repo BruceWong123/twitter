@@ -647,7 +647,7 @@ def get_followers(user_name):
         return
     count = 0
     try:
-        logger.info("into get page 1111")
+        logger.info("into get page 2222222")
         follwers_id = tw_api.followers_ids
         logger.info(user_name + " has " +
                     str(len(follwers_id)) + " followers.")
