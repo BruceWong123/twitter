@@ -674,6 +674,7 @@ def get_followers(user_name):
             time.sleep(1000)
         set_api_status(tw_api, "normal", key_id)
     except tweepy.errors.TweepyException as e:
+        logger.info("tweepy error !")
         print("Tweepy Error: {}".format(e))
         logger.info("Tweepy Error: {}".format(e))
         set_api_status(tw_api, format(e), key_id)
