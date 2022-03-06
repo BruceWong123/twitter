@@ -693,7 +693,7 @@ def get_followers(user_name):
 
 def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_id):
 
-    logger.info("message content %s " % text)
+    logger.info("direct message content: %s " % text)
     logger.info("content id %s " % content_id)
     logger.info("send direct message >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     logger.info(list_of_users)
@@ -831,25 +831,21 @@ def collect_chat_history(sender_id, receiver_id):
             replied = x["replied"]
         if "content_id" in x:
             content_id = x["content_id"]
+    result = ""
 
-    if replied == False:
-        return ""
+    if replied == True and content_id != -1:
+        mysql_connection = mysql.connect(
+            host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+        mysql_cursor = mysql_connection.cursor(buffered=True)
 
-    mysql_connection = mysql.connect(
-        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
-    mysql_cursor = mysql_connection.cursor(buffered=True)
+        sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
+            "\"" + str(content_id) + "\""
+        mysql_cursor.execute(sql)
 
-    sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
-        "\"" + str(content_id) + "\""
-    mysql_cursor.execute(sql)
+        query_result = mysql_cursor.fetchall()
 
-    query_result = mysql_cursor.fetchall()
-
-    result = "AI:"
-    for row in query_result:
-        result += row[0]
-
-    result += "\n"
+        for row in query_result:
+            result += "AI:" + row[0] + "\n"
 
     sql = "SELECT * FROM asynctask_message WHERE sender = " + \
         "\"" + str(sender_id) + "\"" + " and receiver = " + \
