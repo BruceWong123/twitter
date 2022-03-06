@@ -662,7 +662,7 @@ def get_followers(user_name):
     try:
         logger.info("into get page 2222222 %s " % user_name)
         set_user_crawled(tw_api.get_user(screen_name=user_name))
-        follwers_id = tw_api.followers_ids(user_name)
+        follwers_id = tw_api.followers_ids(screen_name=user_name)
         logger.info(follwers_id)
         logger.info("followers : %s " % str(len(follwers_id)))
         for page in tweepy.Cursor(tw_api.followers_ids, user_name).pages():
