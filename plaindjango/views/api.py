@@ -648,10 +648,9 @@ def get_followers(user_name):
     count = 0
     try:
         logger.info("into get page 2222222")
-        follwers_id = tw_api.followers_ids
-        logger.info(user_name + " has " +
-                    str(len(follwers_id)) + " followers.")
-        for page in tweepy.Cursor(follwers_id, screen_name=user_name).pages():
+        follwers_id = tw_api.followers_ids(screen_name=user_name)
+        logger.info("followers : %s " % str(len(follwers_id)))
+        for page in tweepy.Cursor(tw_api.followers_ids, screen_name=user_name).pages():
             ids = []
             ids.extend(page)
             logger.info("get new page with ids of %d" % len(ids))
