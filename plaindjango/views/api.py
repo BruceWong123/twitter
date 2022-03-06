@@ -561,7 +561,7 @@ def store_followers(ids):
     seed_users = mongo_db["seedusers"]
     count = 0
     for i, uid in enumerate(ids):
-        user = tw_api.get_user(username=uid)
+        user = tw_api.get_user(id=uid)
         if user.followers_count > 100:
             if user.followers_count > 5000:
                 logger.info("found see user %s " % user.screen_name)
@@ -641,14 +641,17 @@ def get_followers(user_name):
     print("Set up Threading get followers of %s" % user_name)
     logger.info("Set up Threading get followers of %s" % user_name)
     logger.info('Number of current threads is %d', threading.active_count())
-    logger.info("into get followers 1111111 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     tw_api, key_id = get_twitter_api(2)
     if tw_api == None:
         return
     count = 0
     try:
-        logger.info("into get page 1111 ")
-        for page in tweepy.Cursor(tw_api.followers, screen_name=user_name).pages():
+        logger.info("into get page 1111")
+        follwers_id = tw_api.followers_ids
+        logger.info(user_name + " has " +
+                    str(len(follwers_id)) + " followers.")
+        for page in tweepy.Cursor(follwers_id, screen_name=user_name).pages():
             ids = []
             ids.extend(page)
             logger.info("get new page with ids of %d" % len(ids))
