@@ -215,7 +215,7 @@ def load_dmcontents():
     query_result = mysql_cursor.fetchall()
 
     for row in query_result:
-        dm_contents.append((row[0], row[2]))
+        dm_contents.append((row[0], row[2]))  # row[2] is id of content
     mysql_cursor.close()
     mysql_connection.close()
 
@@ -712,6 +712,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
             if is_reply:
                 logger.info("it is a reply")
                 message = text
+                tw_api.send_direct_message(user["id"], message)
             else:
                 logger.info("it is a auto message")
                 logger.info("sent content id: %s " % content_id)
@@ -724,8 +725,7 @@ def send_direct_message(list_of_users, text, content_id, tw_api, is_reply, key_i
                 record_content_update(
                     "asynctask_twitter_account", 10, 9, key_id, False)
 
-            direct_message = tw_api.send_direct_message(
-                user["id"], message)
+                tw_api.send_direct_message(user["id"], message)
 #           logger.info("direct message id: " + direct_message.id)
 #           tw_api.destroy_direct_message(direct_message.id)
         insert_stat_info(0, len(list_of_users), 0)
@@ -819,6 +819,55 @@ def get_seed_users_by_key(request, key_word):
         return HttpResponse("request sent")
 
 
+def collect_chat_history(sender_id, receiver_id):
+
+    users = mongo_db["users"]
+    replied = False
+    content_id = -1
+    query_result = users.find(
+        {"id": int(sender_id)})
+    for x in query_result:
+        if "replied" in x:
+            replied = x["replied"]
+        if "content_id" in x:
+            content_id = x["content_id"]
+
+    if replied == False:
+        return ""
+
+    mysql_connection = mysql.connect(
+        host=HOST, database=DATABASE, user=USER, password=PASSWORD, buffered=True)
+    mysql_cursor = mysql_connection.cursor(buffered=True)
+
+    sql = "SELECT * FROM asynctask_campaign_content WHERE id = " + \
+        "\"" + str(content_id) + "\""
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    result = "AI:"
+    for row in query_result:
+        result += row[0]
+
+    result += "\n"
+
+    sql = "SELECT * FROM asynctask_message WHERE sender = " + \
+        "\"" + str(sender_id) + "\"" + " and receiver = " + \
+        "\"" + str(receiver_id) + "\""
+    mysql_cursor.execute(sql)
+
+    query_result = mysql_cursor.fetchall()
+
+    for row in query_result:
+        result += "Human:" + row[5] + "\n"
+        result += "AI:" + row[7] + "\n"
+
+    mysql_cursor.close()
+    mysql_connection.close()
+
+    return result
+
+
 def generate_auto_reply(receiver_id, sender_name, sender_id, message):
 
     logger.info("in generate auto reply by openai")
@@ -835,9 +884,13 @@ def generate_auto_reply(receiver_id, sender_name, sender_id, message):
 
     tw_api, key_id = get_twitter_api_by_id(receiver_id)
     is_reply = True
-    content = openai_auto_reply(message)
-    send_direct_message(users_list, content, -1, tw_api, is_reply, key_id)
-    logger.info("done automatic DM with %s " % content)
+
+    start_chat_log = collect_chat_history(sender_id, receiver_id)
+    logger.info("automatic start_chat_log: %s " % start_chat_log)
+    reply = openai_auto_reply(message, start_chat_log)
+    send_direct_message(users_list, reply, -1, tw_api, is_reply, key_id)
+    logger.info("done automatic DM with %s " % reply)
+    return reply
 
 
 @ api_view(['GET', 'PUT', 'DELETE'])
@@ -904,20 +957,20 @@ def store_direct_message_by_dict(messages):
     mysql_cursor = mysql_connection.cursor(buffered=True)
 
     for key, value in messages.items():
+        reply = generate_auto_reply(
+            value["receiver"], value["sender_name"], value["sender"], value["content"])
+
         sql = "INSERT ignore INTO asynctask_message (messageid, sender, receiver, type, content, replied, date,sender_name, receiver_name,reply,followed,receiver_desc,server_id) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         val = (value["messageid"], value["sender"],
                value["receiver"],  value["type"],
                value["content"],  value["replied"],  value["date"],
                value["sender_name"],  value["receiver_name"],
-               value["reply"], value["followed"],
+               reply, value["followed"],
                value["receiver_desc"], value["server_id"])
 
         mysql_cursor.execute(sql, val)
 
         mysql_connection.commit()
-
-        generate_auto_reply(
-            value["receiver"], value["sender_name"], value["sender"], value["content"])
 
     mysql_cursor.close()
     mysql_connection.close()
