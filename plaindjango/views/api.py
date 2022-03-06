@@ -641,7 +641,7 @@ def get_followers(user_name):
     print("Set up Threading get followers of %s" % user_name)
     logger.info("Set up Threading get followers of %s" % user_name)
     logger.info('Number of current threads is %d', threading.active_count())
-    logger.info("into get followers >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    logger.info("into get followers 1111111 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     tw_api, key_id = get_twitter_api(2)
     if tw_api == None:
         return
