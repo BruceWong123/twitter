@@ -561,7 +561,7 @@ def store_followers(ids):
     seed_users = mongo_db["seedusers"]
     count = 0
     for i, uid in enumerate(ids):
-        user = tw_api.get_user(id=uid)
+        user = tw_api.get_user(username=uid)
         if user.followers_count > 100:
             if user.followers_count > 5000:
                 logger.info("found see user %s " % user.screen_name)
@@ -647,8 +647,8 @@ def get_followers(user_name):
         return
     count = 0
     try:
-        logger.info("into get page")
-        for page in tweepy.Cursor(tw_api.followers_ids, screen_name=user_name).pages():
+        logger.info("into get page 1111 ")
+        for page in tweepy.Cursor(tw_api.followers, screen_name=user_name).pages():
             ids = []
             ids.extend(page)
             logger.info("get new page with ids of %d" % len(ids))
