@@ -584,7 +584,7 @@ def store_followers(ids):
                     logger.info("found normal user %s " % user.screen_name)
                     key = {"id": user.id}
                     data = {"screen_name": user.screen_name, "name": user.name, "id": user.id,
-                            "follwers": user.followers_count, "dmed": False}
+                            "follwers": user.followers_count, "dmed": "False"}
                     # if user.utc_offset != None:
                     #     data["utc_offset"] = user.utc_offset
                     # if user.favourites_count != None:
@@ -624,8 +624,8 @@ def store_followers(ids):
                             result.append(tweet.full_text)
                         data["tweets"] = result
 
-                    logger.info("collected data")
-                    logger.info(data)
+                    # logger.info("collected data")
+                    # logger.info(data)
                     db_users.update_one(
                         key,  {"$setOnInsert": data}, upsert=True)
                     count += 1
@@ -1032,6 +1032,7 @@ def get_followers_count_by_id(id):
         return 0
     followers = 0
     try:
+        logger.info("get_followers_by_id: %s " % id)
         followers = tw_api.get_user(user_id=id).followers_count
     except tweepy.errors.TweepyException as e:
         print("Tweepy Error: {}".format(e))
