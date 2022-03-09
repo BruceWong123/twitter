@@ -883,8 +883,18 @@ def generate_auto_reply(receiver_id, sender_name, sender_id, message):
 
     start_chat_log = collect_chat_history(sender_id, receiver_id)
     logger.info("automatic start_chat_log: %s " % start_chat_log)
-    reply = openai_auto_reply(message, start_chat_log)
-    send_direct_message(users_list, reply, -1, tw_api, is_reply, key_id)
+
+    repied = start_chat_log.count('AI:')
+    reply = ""
+    if repied == 3:
+        reply = "Can we follow each other on Twitter? I already followed you :)"
+        send_direct_message(users_list, reply, -1, tw_api, is_reply, key_id)
+    elif repied < 3:
+        reply = openai_auto_reply(message, start_chat_log)
+        send_direct_message(users_list, reply, -1, tw_api, is_reply, key_id)
+    else:
+        logger.info("repied more than 3 times")
+
     logger.info("done automatic DM with %s " % reply)
     return reply
 
